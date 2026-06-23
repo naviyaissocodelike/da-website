@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>District Angels</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#14223B; --ink-deep:#0D1626; --ink-2:#1C2E4A;
+  --coral:#E87A5B; --coral-deep:#D8623F;
+  --paper:#F4EEE3; --paper-2:#FBF8F1;
+  --slate:#5C6E86; --slate-light:#8A99AD;
+  --line:rgba(20,34,59,.12); --line-light:rgba(255,255,255,.14);
+  --serif:"Poppins",system-ui,sans-serif;
+  --sans:"Poppins",system-ui,sans-serif;
+  --mono:"Poppins",system-ui,sans-serif;
+  --maxw:1160px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:600;line-height:1.08;letter-spacing:-.02em;margin:0}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--coral);font-weight:500}
+.eyebrow.dim{color:var(--slate-light)}
+.mark{color:var(--coral)}
+section[id]{scroll-margin-top:80px}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:60;background:rgba(13,22,38,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-light)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+.brand{display:flex;align-items:center;gap:11px;cursor:pointer}
+.brand .dome{width:26px;height:26px;color:#fff}
+.brand .name{font-family:var(--serif);color:#fff;font-size:20px;letter-spacing:.02em;line-height:1}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-links .lk{font-size:14px;color:#C4CEDC;padding:8px 13px;border-radius:7px;font-weight:500;transition:color .18s,background .18s;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.nav-links .lk:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-links .lk.on{color:#fff}
+.nav-cta{background:var(--coral);color:#fff !important;font-weight:600;padding:9px 17px !important;border-radius:8px;margin-left:8px}
+.nav-cta:hover{background:var(--coral-deep) !important}
+.caret{width:9px;height:9px;opacity:.7}
+/* dropdown */
+.has-drop{position:relative}
+.drop{position:absolute;top:100%;left:0;padding-top:12px;opacity:0;pointer-events:none;transform:translateY(6px);transition:.18s}
+.has-drop:hover .drop,.has-drop:focus-within .drop{opacity:1;pointer-events:auto;transform:none}
+.drop-inner{background:var(--ink-deep);border:1px solid var(--line-light);border-radius:11px;padding:8px;min-width:210px;box-shadow:0 24px 50px -20px rgba(0,0,0,.6)}
+.drop-inner a{display:block;padding:10px 13px;border-radius:7px;font-size:14px;color:#C4CEDC;cursor:pointer}
+.drop-inner a:hover{background:rgba(255,255,255,.07);color:#fff}
+.drop-inner a small{display:block;font-family:var(--mono);font-size:10px;color:var(--slate-light);letter-spacing:.04em;margin-top:2px}
+.burger{display:none;background:none;border:0;cursor:pointer;padding:8px;color:#fff}
+.burger svg{width:24px;height:24px}
+
+/* HERO */
+.hero{position:relative;background:var(--ink-deep);color:#fff;overflow:hidden;padding:96px 0 84px}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 90% at 78% 12%,rgba(232,122,91,.20),transparent 60%),radial-gradient(50% 70% at 12% 95%,rgba(31,46,74,.9),transparent 70%);pointer-events:none}
+.hero .dome-bg{position:absolute;right:-60px;top:40px;width:520px;color:rgba(255,255,255,.035);pointer-events:none}
+.hero-inner{position:relative;max-width:860px}
+.hero h1{font-size:clamp(44px,7vw,82px);color:#fff;margin:22px 0 0}
+.hero .lede{font-size:clamp(17px,2.3vw,21px);color:#C4CEDC;max-width:620px;margin:24px 0 0;line-height:1.5}
+.hero-cta{display:flex;gap:14px;margin-top:38px;flex-wrap:wrap}
+.btn{font-family:var(--sans);font-weight:600;font-size:15px;cursor:pointer;border:0;padding:14px 26px;border-radius:9px;transition:transform .15s,background .18s,box-shadow .18s;display:inline-flex;align-items:center;gap:9px}
+.btn:hover{transform:translateY(-2px)}
+.btn-coral{background:var(--coral);color:#fff;box-shadow:0 8px 24px -10px rgba(232,122,91,.7)}
+.btn-coral:hover{background:var(--coral-deep)}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.28)}
+.btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.05)}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ink:hover{background:var(--ink-2)}
+.hero-tagrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:46px}
+.hero-tagrow .tg{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9FB0C6;border:1px solid var(--line-light);padding:7px 12px;border-radius:50px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line-light)}
+.stats .s{padding:34px 26px;border-right:1px solid var(--line-light)}
+.stats .s:last-child{border-right:0}
+.stats .num{font-family:var(--serif);font-size:46px;color:#fff;line-height:1}
+.stats .num .u{color:var(--coral);font-size:30px}
+.stats .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#9FB0C6;margin-top:10px}
+
+/* BANDS */
+section.band{padding:84px 0}
+section.band.tight{padding:60px 0}
+.dark{background:var(--ink);color:#EDEFF3}
+.deep{background:var(--ink-deep);color:#EDEFF3}
+.paper2{background:var(--paper-2)}
+.dark h1,.dark h2,.dark h3,.deep h1,.deep h2,.deep h3{color:#fff}
+.dark p,.deep p{color:#AEBACB}
+.shead{max-width:700px;margin-bottom:46px}
+.shead h2{font-size:clamp(30px,4.5vw,46px);margin-top:14px}
+.shead p{color:var(--slate);font-size:17px;margin-top:16px}
+.dark .shead p,.deep .shead p{color:#AEBACB}
+
+/* THREE / CARDS */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:28px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 16px 40px -24px rgba(20,34,59,.4)}
+.card .k{font-family:var(--mono);font-size:12px;color:var(--coral);letter-spacing:.1em}
+.card h3{font-size:23px;margin:16px 0 10px}
+.card p{color:var(--slate);font-size:15px}
+.dark .card,.deep .card{background:var(--ink-2);border-color:var(--line-light)}
+.dark .card p,.deep .card p{color:#AEBACB}
+.dark .card h3,.deep .card h3{color:#fff}
+
+/* THESIS */
+.thesis-lede{max-width:720px}
+.thesis-lede h2{font-size:clamp(30px,4.6vw,48px)}
+.thesis-lede p{color:#AEBACB;font-size:18px;margin-top:20px;line-height:1.6}
+.prob{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.prob .p{border-left:2px solid var(--coral);padding:6px 0 6px 18px}
+.prob .p b{font-family:var(--serif);font-weight:600;font-size:20px;display:block;color:#fff}
+.prob .p .desc{color:#9FB0C6;font-size:14px;display:block;margin-top:6px}
+.prob .p .fix{color:var(--coral);font-size:13px;display:block;margin-top:10px;font-weight:500}
+.prob-lead{color:#C4CEDC;font-size:18px;max-width:620px;margin:48px 0 0;line-height:1.6}
+.prob-lead b{color:#fff;font-weight:600}
+
+/* SECTORS */
+.sectorwrap{display:flex;gap:38px;align-items:center;flex-wrap:wrap}
+.sectorwrap .lead{max-width:300px}
+.sectorwrap .lead h3{font-size:26px;color:#fff}
+.sectorwrap .lead p{color:#9FB0C6;margin-top:12px;font-size:15px}
+.tags{display:flex;flex-wrap:wrap;gap:10px;flex:1;min-width:280px}
+.tags .t{font-family:var(--mono);font-size:13px;color:#EDEFF3;border:1px solid var(--line-light);padding:11px 16px;border-radius:9px;background:rgba(255,255,255,.03)}
+.tags .t .d{color:var(--coral);margin-right:8px}
+
+/* TEAM */
+.teamgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.member{display:flex;flex-direction:column;align-items:flex-start}
+.avatar{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:26px;color:#fff;background:linear-gradient(140deg,var(--ink-2),var(--ink));border:1px solid var(--line-light);margin-bottom:14px}
+.avatar.c{background:linear-gradient(140deg,var(--coral),var(--coral-deep))}
+.member .mn{font-family:var(--serif);font-size:21px;color:#fff}
+.member .role{font-family:var(--mono);font-size:12px;color:var(--slate-light);letter-spacing:.04em;margin-top:5px}
+
+/* PORTFOLIO */
+.pf{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.pf .co{border:1px solid var(--line);border-radius:14px;padding:30px;background:var(--paper-2);display:flex;flex-direction:column;min-height:260px;transition:transform .2s,box-shadow .2s}
+.pf .co:hover{transform:translateY(-3px);box-shadow:0 18px 44px -26px rgba(20,34,59,.45)}
+.pf .co .nm{font-family:var(--serif);font-size:30px;margin:0 0 4px}
+.pf .co .meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 2px}
+.pf .co .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink);background:rgba(20,34,59,.05);border:1px solid var(--line);border-radius:50px;padding:6px 12px;white-space:nowrap}
+.pf .co .pill.geo{color:var(--coral-deep);background:rgba(232,122,91,.08);border-color:rgba(232,122,91,.32)}
+.pf .co .pill svg{width:12px;height:12px;flex:none}
+.pf .co .desc{color:var(--slate);font-size:15px;margin-top:14px;flex:1}
+.pf .co .vlink{font-family:var(--mono);font-size:12px;color:var(--ink);letter-spacing:.04em;margin-top:18px}
+.pf .co .vlink:hover{color:var(--coral)}
+
+/* FELLOWSHIP */
+.split{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+.split.rev{grid-template-columns:.9fr 1.1fr}
+.split h2{font-size:clamp(28px,4vw,42px)}
+.split p{color:var(--slate);font-size:16px;margin-top:18px}
+.dark .split p,.deep .split p{color:#AEBACB}
+.checklist{list-style:none;padding:0;margin:24px 0 0;display:flex;flex-direction:column;gap:14px}
+.checklist li{display:flex;gap:13px;align-items:flex-start;font-size:15px;color:var(--slate)}
+.dark .checklist li,.deep .checklist li{color:#C4CEDC}
+.checklist .ck{color:var(--coral);flex:none;margin-top:2px;font-family:var(--mono);font-weight:600}
+.featimg{border-radius:16px;aspect-ratio:4/5;border:1px solid var(--line-light);background:radial-gradient(70% 60% at 30% 20%,rgba(232,122,91,.28),transparent 60%),linear-gradient(160deg,var(--ink-2),var(--ink-deep));position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:28px}
+.featimg .dome{position:absolute;right:-30px;top:-20px;width:260px;color:rgba(255,255,255,.05)}
+.featimg .cap{font-family:var(--mono);font-size:12px;color:#9FB0C6;letter-spacing:.08em;position:relative}
+.placeholder-note{font-family:var(--mono);font-size:12px;color:#9FB0C6;letter-spacing:.04em;background:rgba(232,122,91,.1);border:1px dashed var(--coral);border-radius:8px;padding:10px 14px;display:inline-block}
+
+/* COHORTS */
+.cohorts{display:flex;flex-direction:column;gap:14px;margin-top:42px}
+.cohort{background:var(--ink-2);border:1px solid var(--line-light);border-radius:14px;padding:24px 26px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.cohort .ctag{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--coral);min-width:120px}
+.cohort .ctag b{display:block;font-family:var(--serif);font-size:26px;color:#fff;letter-spacing:0;margin-top:2px}
+.faces{display:flex;flex-wrap:wrap;gap:14px;flex:1}
+.face{display:flex;flex-direction:column;align-items:center;width:74px;text-align:center}
+.face .fa{width:50px;height:50px;border-radius:50%;background:linear-gradient(140deg,var(--ink),var(--ink-deep));border:1px solid var(--line-light);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--serif);font-size:16px}
+.face .fn{font-size:11px;color:#9FB0C6;margin-top:7px;line-height:1.3}
+
+/* PATHS (investors) */
+.paths{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.path{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:30px;display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
+.path:hover{transform:translateY(-3px);border-color:var(--coral)}
+.path .n{font-family:var(--mono);font-size:12px;color:var(--coral);letter-spacing:.1em}
+.path h3{font-size:24px;margin:14px 0 10px}
+.path p{color:var(--slate);font-size:15px;flex:1}
+
+/* PARTNERS */
+.logos{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.logo{border:1px solid var(--line);border-radius:11px;padding:20px 18px;background:var(--paper-2);text-align:center;display:flex;align-items:center;justify-content:center;min-height:88px;transition:border-color .2s,transform .2s}
+.logo:hover{border-color:var(--coral);transform:translateY(-2px)}
+.logo img{max-height:48px;max-width:100%;width:auto;object-fit:contain;filter:grayscale(1);opacity:.85;transition:filter .2s,opacity .2s}
+.logo:hover img{filter:none;opacity:1}
+.logo .logo-txt{display:none;font-weight:600;font-size:15px;color:var(--ink)}
+.perks{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+
+/* REPORTS */
+.reportlist{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.report{display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding:24px 4px;border-bottom:1px solid var(--line);transition:padding-left .2s}
+.report:hover{padding-left:10px}
+.report .rt{font-family:var(--serif);font-size:23px;max-width:640px}
+.report .ra{font-family:var(--mono);font-size:12px;color:var(--slate);letter-spacing:.04em;margin-top:8px}
+.report .rd{font-family:var(--mono);font-size:12px;color:var(--coral);white-space:nowrap;letter-spacing:.06em}
+
+/* CTA */
+.bigcta{text-align:center;max-width:680px;margin:0 auto}
+.bigcta h2{font-size:clamp(32px,5vw,52px);color:#fff}
+.bigcta p{color:#AEBACB;font-size:18px;margin:18px 0 30px}
+.bigcta .hero-cta{justify-content:center}
+
+/* FOOTER */
+.footer{background:var(--ink-deep);color:#9FB0C6;padding:60px 0 38px;border-top:1px solid var(--line-light)}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:40px;border-bottom:1px solid var(--line-light)}
+.footer .brand .name{font-size:20px}
+.footer h5{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#fff;margin:0 0 16px}
+.footer ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.footer ul a{font-size:14px;color:#9FB0C6;cursor:pointer}
+.footer ul a:hover{color:var(--coral)}
+.footer-bot{display:flex;justify-content:space-between;align-items:center;padding-top:26px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;flex-wrap:wrap;gap:12px}
+.footer-blurb{font-size:14px;color:#9FB0C6;margin-top:16px;max-width:300px;line-height:1.6}
+
+@media (max-width:920px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stats .s:nth-child(2){border-right:0}
+  .three,.pf,.paths,.teamgrid,.prob,.split,.split.rev,.perks{grid-template-columns:1fr}
+  .split,.split.rev{gap:32px}
+  .logos{grid-template-columns:repeat(2,1fr)}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  .nav-links{position:fixed;top:68px;left:0;right:0;background:var(--ink-deep);flex-direction:column;align-items:stretch;padding:14px;gap:2px;border-bottom:1px solid var(--line-light);transform:translateY(-12px);opacity:0;pointer-events:none;transition:.2s;max-height:80vh;overflow:auto}
+  .nav-links.open{transform:none;opacity:1;pointer-events:auto}
+  .nav-links .lk{padding:12px 14px}
+  .nav-cta{margin:6px 0 0}
+  .burger{display:inline-flex}
+  .drop{position:static;opacity:1;pointer-events:auto;transform:none;padding-top:4px}
+  .drop-inner{background:transparent;border:0;box-shadow:none;padding:0 0 0 12px;min-width:0}
+  .drop-inner a{color:#9FB0C6;padding:9px 14px}
+  .report{flex-direction:column;gap:6px}
+  .cohort .ctag{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <svg class="dome" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="5" r="2" fill="currentColor"/><path d="M24 7v4" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/>
+        <path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M11 34h26v4H11z" fill="currentColor"/><path d="M9 38h30v3H9z" fill="currentColor"/>
+      </svg>
+      <span class="name">District Angels</span>
+    </a>
+    <div class="nav-links" id="navlinks">
+      <div class="has-drop">
+        <a class="lk" href="#whatwedo">About <svg class="caret" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
+        <div class="drop"><div class="drop-inner">
+          <a href="#whatwedo">What We Do<small>The three things we're built for</small></a>
+          <a href="#thesis">Thesis<small>Why the DMV, why now</small></a>
+          <a href="#team">Team<small>The people behind it</small></a>
+          <a href="#portfolio">Portfolio<small>What we've backed</small></a>
+        </div></div>
+      </div>
+      <a class="lk" href="#fellowship">Fellowship</a>
+      <a class="lk" href="#investors">Investors</a>
+      <a class="lk" href="#founders">Founders</a>
+      <a class="lk" href="#partners">Partners</a>
+      <a class="lk nav-cta" href="#join">Join</a>
+    </div>
+    <button class="burger" id="burger" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</nav>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <svg class="dome-bg" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <circle cx="24" cy="5" r="2" fill="currentColor"/><path d="M24 7v4" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/>
+      <path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M11 34h26v4H11z" fill="currentColor"/><path d="M9 38h30v3H9z" fill="currentColor"/>
+    </svg>
+    <div class="wrap hero-inner">
+      <span class="eyebrow">Founders anywhere · Investors in the capital region</span>
+      <h1>Where the capital region<br/>backs <span class="mark">what's next</span></h1>
+      <p class="lede">District Angels is a community of investors and operators rooted in the capital region. We back great founders wherever they're building, and bring local capital closer to the companies that deserve it. The door stays open, and we bring people closer as they lean in.</p>
+      <div class="hero-cta">
+        <a class="btn btn-coral" href="#join">Join the community</a>
+        <a class="btn btn-ghost" href="#founders">Submit your raise</a>
+      </div>
+      <div class="hero-tagrow">
+        <span class="tg">Volunteer-led</span>
+        <span class="tg">Open &amp; curated</span>
+        <span class="tg">We co-invest</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="deep band tight">
+    <div class="wrap">
+      <div class="stats">
+        <div class="s"><div class="num">3</div><div class="lbl">Companies backed</div></div>
+        <div class="s"><div class="num">4</div><div class="lbl">Fellowship cohorts</div></div>
+        <div class="s"><div class="num">25<span class="u">+</span></div><div class="lbl">Partner organizations</div></div>
+        <div class="s"><div class="num">12<span class="u">+</span></div><div class="lbl">Market reports published</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT WE DO -->
+  <section class="band" id="whatwedo">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">What we do</span>
+        <h2>Three things, done well</h2>
+      </div>
+      <div class="three">
+        <div class="card">
+          <div class="k">01 / Education</div>
+          <h3>Demystify the work</h3>
+          <p>Our Halo Fellowship and programming take people from curious to confident, with real diligence reps and memos to show for it.</p>
+        </div>
+        <div class="card">
+          <div class="k">02 / Infrastructure</div>
+          <h3>Share the research</h3>
+          <p>Open access to our deal screens, investment memos, and market reports, so members move faster and decide better.</p>
+        </div>
+        <div class="card">
+          <div class="k">03 / Community</div>
+          <h3>Build the bridges</h3>
+          <p>We connect angel groups, VCs, universities, and economic development across the DMV, and co-invest instead of competing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THESIS -->
+  <section class="dark band" id="thesis">
+    <div class="wrap">
+      <div class="thesis-lede">
+        <span class="eyebrow">Thesis</span>
+        <h2>The talent is here. The capital just sits still</h2>
+        <p>Washington holds the research, the institutions, and some of the highest-income counties in the country. Very little of it reaches early-stage founders. We're the connective tissue that moves it.</p>
+        <p>The cost of building drops every quarter, and more of the value now gets created at the earliest stage, by the people who show up first. The money to back them already lives here. What's missing is a way for everyday professionals to put it to work.</p>
+      </div>
+      <p class="prob-lead">So we built one. <b>Three things keep good capital on the sidelines, and each is something we set out to fix:</b></p>
+      <div class="prob">
+        <div class="p"><b>No on-ramp</b><span class="desc">New and aspiring angels have nowhere obvious to start.</span><span class="fix">→ We're the on-ramp: a monthly deal room, a hands-on fellowship, and a community you can actually join.</span></div>
+        <div class="p"><b>Diligence is hard</b><span class="desc">Doing it well takes time and expertise most people don't have spare.</span><span class="fix">→ We share the work: open memos, deal screens, and market reports anyone can build on.</span></div>
+        <div class="p"><b>Groups stay closed</b><span class="desc">Existing angel groups can feel siloed and hard to break into.</span><span class="fix">→ We stay open and co-invest instead of gatekeeping.</span></div>
+      </div>
+      <div style="height:54px"></div>
+      <div class="sectorwrap">
+        <div class="lead">
+          <h3>Open to any sector, sharpest in a few</h3>
+          <p>We'll back a great founder anywhere. These are the areas we know best and lean into hardest.</p>
+        </div>
+        <div class="tags">
+          <span class="t"><span class="d">/</span>Dual-use &amp; defense</span>
+          <span class="t"><span class="d">/</span>Cyber</span>
+          <span class="t"><span class="d">/</span>Biotech</span>
+          <span class="t"><span class="d">/</span>Health tech</span>
+          <span class="t"><span class="d">/</span>Life sciences</span>
+          <span class="t"><span class="d">/</span>Climate</span>
+          <span class="t"><span class="d">/</span>Finance &amp; crypto</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="band paper2" id="team">
+    <div class="wrap">
+      <div class="shead"><span class="eyebrow">Team</span><h2>The people behind it</h2></div>
+      <div class="teamgrid" style="margin-bottom:40px">
+        <div class="member"><div class="avatar c" style="color:#fff">NK</div><div class="mn" style="color:var(--ink)">Naviya Kothari</div><div class="role" style="color:var(--slate)">Co-founder</div></div>
+        <div class="member"><div class="avatar c">BR</div><div class="mn" style="color:var(--ink)">Blaire Rowe Rakowicz</div><div class="role" style="color:var(--slate)">Co-founder</div></div>
+        <div class="member"><div class="avatar c">CC</div><div class="mn" style="color:var(--ink)">Charlotte Clark</div><div class="role" style="color:var(--slate)">Co-founder · Fellowship</div></div>
+      </div>
+      <div class="shead" style="margin-bottom:28px"><span class="eyebrow dim" style="color:var(--slate-light)">Managing directors</span></div>
+      <div class="teamgrid">
+        <div class="member"><div class="avatar">SG</div><div class="mn" style="color:var(--ink)">Sriram Gollapalli</div><div class="role" style="color:var(--slate)">Managing Director</div></div>
+        <div class="member"><div class="avatar">BK</div><div class="mn" style="color:var(--ink)">Brandon Kortokrax</div><div class="role" style="color:var(--slate)">Managing Director</div></div>
+        <div class="member"><div class="avatar">MK</div><div class="mn" style="color:var(--ink)">Mike King</div><div class="role" style="color:var(--slate)">Managing Director</div></div>
+      </div>
+      <div class="shead" style="margin:48px 0 28px"><span class="eyebrow dim" style="color:var(--slate-light)">Deals</span></div>
+      <div class="teamgrid">
+        <div class="member"><div class="avatar">AK</div><div class="mn" style="color:var(--ink)">Abdul Khan</div><div class="role" style="color:var(--slate)">Deals</div></div>
+        <div class="member"><div class="avatar">KJ</div><div class="mn" style="color:var(--ink)">Ka-Jana Justin</div><div class="role" style="color:var(--slate)">Deals</div></div>
+        <div class="member"><div class="avatar">FT</div><div class="mn" style="color:var(--ink)">Francis Tay</div><div class="role" style="color:var(--slate)">Deals</div></div>
+      </div>
+      <div class="shead" style="margin:48px 0 28px"><span class="eyebrow dim" style="color:var(--slate-light)">Operations</span></div>
+      <div class="teamgrid">
+        <div class="member"><div class="avatar">MP</div><div class="mn" style="color:var(--ink)">Mallika Patkar</div><div class="role" style="color:var(--slate)">Operations</div></div>
+        <div class="member"><div class="avatar">VA</div><div class="mn" style="color:var(--ink)">Victoria Adofoli</div><div class="role" style="color:var(--slate)">Operations</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section class="band" id="portfolio">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">Portfolio</span>
+        <h2>What we've backed</h2>
+      </div>
+      <div class="pf">
+        <div class="co">
+          <div class="nm">Cachai</div>
+          <div class="meta">
+            <span class="pill"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5l5.5 2.4v3.4c0 3.4-2.3 5.6-5.5 6.8C4.8 12.9 2.5 10.7 2.5 7.3V3.9L8 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Dual-use &amp; defense</span>
+            <span class="pill geo"><svg viewBox="0 0 16 16" fill="none"><path d="M8 14.5s5-4.2 5-8.1A5 5 0 003 6.4c0 3.9 5 8.1 5 8.1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8" cy="6.3" r="1.7" stroke="currentColor" stroke-width="1.3"/></svg>Alexandria, VA</span>
+          </div>
+          <div class="desc">Collaborative autonomy software for mission-critical systems. Its Altiro layer turns hub-dependent systems into distributed swarms with no single point of failure.</div>
+          <a class="vlink" href="https://www.cachai.io/" target="_blank" rel="noopener">cachai.io →</a>
+        </div>
+        <div class="co">
+          <div class="nm">CurieDx</div>
+          <div class="meta">
+            <span class="pill"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5l5.5 2.4v3.4c0 3.4-2.3 5.6-5.5 6.8C4.8 12.9 2.5 10.7 2.5 7.3V3.9L8 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Health tech</span>
+            <span class="pill geo"><svg viewBox="0 0 16 16" fill="none"><path d="M8 14.5s5-4.2 5-8.1A5 5 0 003 6.4c0 3.9 5 8.1 5 8.1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8" cy="6.3" r="1.7" stroke="currentColor" stroke-width="1.3"/></svg>Baltimore, MD</span>
+          </div>
+          <div class="desc">An at-home strep throat test that runs on your phone. Photos plus AI return a prediction and guide the next step, putting clinical-grade triage in your pocket.</div>
+          <a class="vlink" href="https://www.curiedx.com/" target="_blank" rel="noopener">curiedx.com →</a>
+        </div>
+        <div class="co">
+          <div class="nm">Alchemity</div>
+          <div class="meta">
+            <span class="pill"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5l5.5 2.4v3.4c0 3.4-2.3 5.6-5.5 6.8C4.8 12.9 2.5 10.7 2.5 7.3V3.9L8 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Climate · hard tech</span>
+            <span class="pill geo"><svg viewBox="0 0 16 16" fill="none"><path d="M8 14.5s5-4.2 5-8.1A5 5 0 003 6.4c0 3.9 5 8.1 5 8.1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8" cy="6.3" r="1.7" stroke="currentColor" stroke-width="1.3"/></svg>College Park, MD</span>
+          </div>
+          <div class="desc">A University of Maryland spinout turning greenhouse gases and waste into sustainable aviation fuel, hydrogen, and chemicals through modular, zero-emissions reactors.</div>
+          <a class="vlink" href="https://alchemity.com/" target="_blank" rel="noopener">alchemity.com →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FELLOWSHIP -->
+  <section class="dark band" id="fellowship">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <span class="eyebrow">Halo Fellowship · Cohort 04 in session</span>
+          <h2>Learn to invest by actually investing</h2>
+          <p>A hands-on program for students, career-switchers, and professionals who want real reps in early-stage investing, not a syllabus. Run diligence on live deals, write memos the community reads, and publish a market report under your name.</p>
+          <ul class="checklist">
+            <li><span class="ck">/</span> 8 to 10 hours per week, 6 to 10 weeks</li>
+            <li><span class="ck">/</span> Two cohorts a year</li>
+            <li><span class="ck">/</span> No prior investing experience required</li>
+          </ul>
+          <div class="hero-cta"><a class="btn btn-coral" href="#join">Apply to a cohort</a></div>
+        </div>
+        <div class="featimg">
+          <svg class="dome" viewBox="0 0 48 48" fill="none"><path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/><path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/><path d="M11 34h26v4H11z" fill="currentColor"/></svg>
+          <span class="cap">Every fellow publishes a market report</span>
+        </div>
+      </div>
+
+      <div style="margin-top:64px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:8px">
+          <h3 style="font-size:28px;color:#fff">The cohorts</h3>
+          <span class="placeholder-note">⌁ Headshots drop in here once you share the cohort graphics</span>
+        </div>
+        <div class="cohorts">
+          <div class="cohort">
+            <div class="ctag">Cohort<b>04</b>In session</div>
+            <div class="faces">
+              <div class="face"><div class="fa">—</div><div class="fn">Coming soon</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Coming soon</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Coming soon</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Coming soon</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Coming soon</div></div>
+            </div>
+          </div>
+          <div class="cohort">
+            <div class="ctag">Cohort<b>03</b></div>
+            <div class="faces">
+              <div class="face"><div class="fa">YO</div><div class="fn">Yousof Omeish</div></div>
+              <div class="face"><div class="fa">CM</div><div class="fn">Catherine McMillan</div></div>
+              <div class="face"><div class="fa">TL</div><div class="fn">Tony Lodge</div></div>
+              <div class="face"><div class="fa">JP</div><div class="fn">Juliano Perczek</div></div>
+            </div>
+          </div>
+          <div class="cohort">
+            <div class="ctag">Cohort<b>02</b></div>
+            <div class="faces">
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+            </div>
+          </div>
+          <div class="cohort">
+            <div class="ctag">Cohort<b>01</b></div>
+            <div class="faces">
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+              <div class="face"><div class="fa">—</div><div class="fn">Add fellows</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INVESTORS -->
+  <section class="band" id="investors">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">For investors</span>
+        <h2>However you show up, there's a way in</h2>
+        <p>Curated deal flow, sharp diligence, and a room full of people who take building seriously. Wherever you are on the curve, you'll find your level.</p>
+      </div>
+      <div class="paths" style="margin-bottom:42px">
+        <div class="path">
+          <div class="n">Never invested</div>
+          <h3>Start without the guesswork</h3>
+          <p>You don't need a track record to belong. Professionals who've never written a check start here: see live deals at the deal room, learn the moves through the fellowship, and get real exposure to innovation while backing the ecosystem you live in.</p>
+        </div>
+        <div class="path">
+          <div class="n">Experienced angel</div>
+          <h3>Sharper signal, better company</h3>
+          <p>Curated, diligence-backed opportunities, co-investment alongside credible leads, and invitation-only gatherings with people operating at your altitude. Less noise, more conviction.</p>
+        </div>
+        <div class="path">
+          <div class="n">Just curious</div>
+          <h3>Come see how it works</h3>
+          <p>Pull up to the monthly deal room, meet the community, and decide for yourself. No commitment to walk in the door.</p>
+        </div>
+      </div>
+      <div class="split rev">
+        <div class="featimg">
+          <svg class="dome" viewBox="0 0 48 48" fill="none"><path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/><path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/><path d="M11 34h26v4H11z" fill="currentColor"/></svg>
+          <span class="cap">The Deal Room · monthly</span>
+        </div>
+        <div>
+          <span class="eyebrow">The deal room</span>
+          <h2>Where the community decides</h2>
+          <p>Once a month we put real founders in front of the room. You hear the pitch, read the memo, ask the hard questions, and signal where you stand. It's the best night in the DMV to meet other angels and the people building what's next.</p>
+          <div class="hero-cta"><a class="btn btn-ink" href="#join">Get on the list</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDERS -->
+  <section class="deep band" id="founders">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">For founders</span>
+        <h2>Submit and hear back</h2>
+        <p>One form, no portal gymnastics. We back great founders anywhere, in the sectors we know cold, and we move at the speed you need.</p>
+      </div>
+      <div class="three" style="margin-bottom:38px">
+        <div class="card"><div class="k">01</div><h3>Hear back in 5 days</h3><p>We get back to you on next steps within five days. No black box, no ghosting.</p></div>
+        <div class="card"><div class="k">02</div><h3>Reach the community</h3><p>With your go-ahead, we share your opportunity with our broader community of angels.</p></div>
+        <div class="card"><div class="k">03</div><h3>Line up co-investors</h3><p>When there's a fit, we help you find co-investors to round out the raise.</p></div>
+      </div>
+      <div class="hero-cta"><a class="btn btn-coral" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Submit your raise</a></div>
+    </div>
+  </section>
+
+  <!-- PARTNERS -->
+  <section class="band" id="partners">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">Partners</span>
+        <h2>We're always looking to do more, together</h2>
+        <p>We co-host events, put our partners in front of the community, trade deal flow, and build with the institutions that make the DMV move. If that's you, let's talk.</p>
+      </div>
+      <div class="perks" style="margin-bottom:44px">
+        <div class="card"><div class="k">Co-host</div><h3>Run events with us</h3><p>From deal rooms to demo nights, we co-host across the region and bring the angels.</p></div>
+        <div class="card"><div class="k">Visibility</div><h3>Reach our community</h3><p>Get your programs, founders, and brand in front of an engaged room of investors and operators.</p></div>
+        <div class="card"><div class="k">Deal flow</div><h3>Trade with us</h3><p>Share your pipeline to reach local angels, and send us companies to look at for regional capital. Clean terms, real reciprocity.</p></div>
+      </div>
+
+      <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">Working with</span></div>
+      <div class="logos" style="margin-bottom:44px">
+        <div class="logo"><img src="logos/dmv-angels.png" alt="DMV Angels" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">DMV Angels</span></div>
+        <div class="logo"><img src="logos/oath-capital.png" alt="Oath Capital" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Oath Capital</span></div>
+        <div class="logo"><img src="logos/new-dominion-angels.png" alt="New Dominion Angels" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">New Dominion Angels</span></div>
+        <div class="logo"><img src="logos/university-of-virginia.png" alt="University of Virginia" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">University of Virginia</span></div>
+        <div class="logo"><img src="logos/neds-club.png" alt="Ned's Club" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Ned's Club</span></div>
+        <div class="logo"><img src="logos/american-university.png" alt="American University" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">American University</span></div>
+        <div class="logo"><img src="logos/arlington-economic-development.png" alt="Arlington Economic Development" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Arlington Economic Development</span></div>
+        <div class="logo"><img src="logos/dedico.png" alt="Dedico" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Dedico</span></div>
+        <div class="logo"><img src="logos/maryland-momentum-fund.png" alt="Maryland Momentum Fund" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Maryland Momentum Fund</span></div>
+        <div class="logo"><img src="logos/maryland-innovation-center.png" alt="Maryland Innovation Center" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Maryland Innovation Center</span></div>
+        <div class="logo"><img src="logos/md-energy-innovation-accelerator.png" alt="MD Energy Innovation Accelerator" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">MD Energy Innovation Accelerator</span></div>
+        <div class="logo"><span class="logo-txt" style="display:block;color:var(--slate)">+ more</span></div>
+      </div>
+
+      <div class="split rev">
+        <div class="featimg">
+          <svg class="dome" viewBox="0 0 48 48" fill="none"><path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/><path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/><path d="M11 34h26v4H11z" fill="currentColor"/></svg>
+          <span class="cap">170+ embassies · diaspora founders</span>
+        </div>
+        <div>
+          <span class="eyebrow">International corridor</span>
+          <h2>The capital region's global access, put to work</h2>
+          <p>The region runs on 170+ embassies and the world's largest multilateral institutions. No other community has this on its doorstep. Here's how we turn it into capital and connection:</p>
+          <ul class="checklist">
+            <li><span class="ck">/</span> Train foreign nationals and embassy networks to invest as angels in US startups</li>
+            <li><span class="ck">/</span> Host private events that put institutions and investors in front of companies founded by diaspora founders in the US</li>
+            <li><span class="ck">/</span> Help international and diaspora founders raise from angels who understand their markets</li>
+          </ul>
+          <div class="hero-cta"><a class="btn btn-ink" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Partner with us</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section class="band paper2" id="research">
+    <div class="wrap">
+      <div class="shead"><span class="eyebrow">Research &amp; reports</span><h2>The thinking, in the open</h2></div>
+      <div class="reportlist">
+        <a class="report" href="https://www.districtangels.com/news" target="_blank" rel="noopener"><div><div class="rt">Drones &amp; Unmanned Aerial Systems</div><div class="ra">Yousof Omeish · Market Report</div></div><div class="rd">READ →</div></a>
+        <a class="report" href="https://www.districtangels.com/news" target="_blank" rel="noopener"><div><div class="rt">AI-Powered Upskilling &amp; Workforce Transformation</div><div class="ra">Catherine McMillan · Market Report</div></div><div class="rd">READ →</div></a>
+        <a class="report" href="https://www.districtangels.com/news" target="_blank" rel="noopener"><div><div class="rt">Emerging Technologies in Aquaculture</div><div class="ra">Tony Lodge · Market Report</div></div><div class="rd">READ →</div></a>
+        <a class="report" href="https://www.districtangels.com/news" target="_blank" rel="noopener"><div><div class="rt">General Purpose Humanoid Robots</div><div class="ra">Juliano Perczek · Market Report</div></div><div class="rd">READ →</div></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN -->
+  <section class="deep band" id="join">
+    <div class="wrap">
+      <div class="shead"><span class="eyebrow">Join</span><h2>The door is open</h2><p>Tell us a little about yourself and we'll point you to the right room.</p></div>
+      <div class="three">
+        <div class="card"><div class="k">Investors</div><h3>Join the community</h3><p>New or seasoned. Get on the list for the deal room, memos, and gatherings.</p><div class="hero-cta" style="margin-top:20px"><a class="btn btn-coral" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Join now</a></div></div>
+        <div class="card"><div class="k">Founders</div><h3>Submit your raise</h3><p>Building in our sectors, anywhere? Send it over and we'll take a real look.</p><div class="hero-cta" style="margin-top:20px"><a class="btn btn-ink" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Submit a pitch</a></div></div>
+        <div class="card"><div class="k">Partners</div><h3>Build with us</h3><p>Run a group, embassy, or institution? Let's co-host and trade deal flow.</p><div class="hero-cta" style="margin-top:20px"><a class="btn btn-ink" href="mailto:team@districtangels.com">Email us</a></div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a class="brand" href="#top" style="cursor:pointer">
+          <svg class="dome" viewBox="0 0 48 48" fill="none" style="color:#fff"><circle cx="24" cy="5" r="2" fill="currentColor"/><path d="M24 7v4" stroke="currentColor" stroke-width="1.5"/><path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/><path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/><path d="M11 34h26v4H11z" fill="currentColor"/><path d="M9 38h30v3H9z" fill="currentColor"/></svg>
+          <span class="name">District Angels</span>
+        </a>
+        <p class="footer-blurb">A DCTAV initiative activating capital, community, and conviction across DC, Maryland, and Virginia.</p>
+      </div>
+      <div><h5>About</h5><ul>
+        <li><a href="#whatwedo">What We Do</a></li>
+        <li><a href="#thesis">Thesis</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="#portfolio">Portfolio</a></li>
+      </ul></div>
+      <div><h5>Take part</h5><ul>
+        <li><a href="#fellowship">Fellowship</a></li>
+        <li><a href="#investors">Investors</a></li>
+        <li><a href="#founders">Founders</a></li>
+        <li><a href="#partners">Partners</a></li>
+      </ul></div>
+      <div><h5>Connect</h5><ul>
+        <li><a href="mailto:team@districtangels.com">team@districtangels.com</a></li>
+        <li><a href="https://www.linkedin.com/showcase/district-angels/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://districtangels.substack.com" target="_blank" rel="noopener">Substack</a></li>
+        <li><a href="https://lu.ma/user/usr-zbARQX9qqtQoF6E" target="_blank" rel="noopener">Events</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bot">
+      <span>© District Angels · A DCTAV initiative</span>
+      <span>Investors rooted in the capital region · open to founders everywhere</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var burger=document.getElementById('burger');
+  var navlinks=document.getElementById('navlinks');
+  burger.addEventListener('click',function(){navlinks.classList.toggle('open')});
+  navlinks.addEventListener('click',function(e){
+    if(e.target.closest('a')&&window.innerWidth<=680){navlinks.classList.remove('open')}
+  });
+  // scrollspy
+  var map={whatwedo:'About',thesis:'About',team:'About',portfolio:'About',fellowship:'Fellowship',investors:'Investors',founders:'Founders',partners:'Partners'};
+  var links=Array.prototype.slice.call(document.querySelectorAll('.nav-links .lk'));
+  function setActive(label){links.forEach(function(l){l.classList.toggle('on',l.textContent.trim().indexOf(label)===0)})}
+  if('IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){var lbl=map[en.target.id];if(lbl)setActive(lbl)}})
+    },{rootMargin:'-45% 0px -50% 0px'});
+    Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el)obs.observe(el)});
+  }
+})();
+</script>
+</body>
+</html>
