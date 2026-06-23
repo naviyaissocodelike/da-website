@@ -52,7 +52,14 @@
 
   <!-- HERO -->
   <section class="hero">
-    <img class="hero-bg" src="assets/hero.jpg" alt="" onerror="this.remove()">
+    <div class="hero-bgs" aria-hidden="true">
+      <img src="assets/hero/1.jpg" alt="" onerror="this.remove()">
+      <img src="assets/hero/2.jpg" alt="" onerror="this.remove()">
+      <img src="assets/hero/3.jpg" alt="" onerror="this.remove()">
+      <img src="assets/hero/4.jpg" alt="" onerror="this.remove()">
+      <img src="assets/hero/5.jpg" alt="" onerror="this.remove()">
+      <img src="assets/hero/6.jpg" alt="" onerror="this.remove()">
+    </div>
     <div class="hero-scrim"></div>
     <svg class="dome-bg" viewBox="0 0 48 48" fill="none" aria-hidden="true">
       <circle cx="24" cy="5" r="2" fill="currentColor"/><path d="M24 7v4" stroke="currentColor" stroke-width="1.5"/>
@@ -508,6 +515,26 @@
     });
   },{rootMargin:'0px 0px -8% 0px',threshold:.12});
   els.forEach(function(el){ io.observe(el); });
+})();
+</script>
+<script>
+(function(){
+  var wrap=document.querySelector('.hero-bgs'); if(!wrap)return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function imgs(){return [].slice.call(wrap.querySelectorAll('img'));}
+  setTimeout(function(){
+    var list=imgs(); if(!list.length)return;
+    list[0].classList.add('show');
+    if(reduce||list.length<2)return;
+    setInterval(function(){
+      var cur=imgs(); if(cur.length<2)return;
+      var active=wrap.querySelector('img.show');
+      var idx=active?cur.indexOf(active):-1; if(idx<0)idx=0;
+      var next=cur[(idx+1)%cur.length];
+      if(active&&active!==next)active.classList.remove('show');
+      next.classList.add('show');
+    },5500);
+  },250);
 })();
 </script>
 </body>

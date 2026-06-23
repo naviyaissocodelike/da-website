@@ -1,8 +1,8 @@
 # Site assets
 
-## Hero image
+## Hero slideshow
 
-The hero looks for `assets/hero.jpg`. Drop a wide, landscape photo here (one of your event shots works great, ideally 2000px+ wide) and it appears as a dimmed background behind the headline, with a dark wash so the white text stays readable. If no file is present, the hero falls back to the dark gradient. Busy or bright photos still read fine because of the wash.
+The hero background cycles through up to 6 images that crossfade slowly behind the headline. Drop them in `assets/hero/` named `1.jpg` through `6.jpg` (see `assets/hero/README.md`). Missing slots are skipped, and if none are present the hero shows the light gradient.
 
 ## Deal room image
 
