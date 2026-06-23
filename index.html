@@ -122,6 +122,15 @@ section.band.tight{padding:60px 0}
 .prob-lead b{color:#fff;font-weight:600}
 .ind-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .ind{font-family:var(--mono);font-size:12px;color:#fff;border:1px solid rgba(232,122,91,.45);background:rgba(232,122,91,.1);border-radius:50px;padding:5px 13px;white-space:nowrap}
+.bubbles{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.bubble{position:relative;background:var(--paper-2);border:1px solid var(--line);border-radius:18px;padding:20px 24px;font-size:15.5px;color:var(--ink);line-height:1.5}
+.bubble::after{content:"";position:absolute;left:28px;bottom:-9px;width:16px;height:16px;background:var(--paper-2);border-right:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
+.paths.cols2{grid-template-columns:repeat(2,1fr)}
+.dealimg{border-radius:16px;aspect-ratio:3/2;overflow:hidden;position:relative;border:1px solid var(--line-light);background:linear-gradient(160deg,var(--ink-2),var(--ink-deep));display:flex;align-items:flex-end;padding:20px}
+.dealimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dealimg .cap{position:relative;z-index:1;font-family:var(--mono);font-size:12px;color:#9FB0C6;letter-spacing:.08em}
+.split.rev.compact{grid-template-columns:.78fr 1.22fr}
+@media (max-width:920px){.bubbles{grid-template-columns:1fr}.paths.cols2{grid-template-columns:1fr}.split.rev.compact{grid-template-columns:1fr}}
 
 /* SECTORS */
 .sectorwrap{display:flex;gap:38px;align-items:center;flex-wrap:wrap}
@@ -382,7 +391,7 @@ section.band.tight{padding:60px 0}
   </section>
 
   <!-- PORTFOLIO -->
-  <section class="band" id="portfolio">
+  <section class="band paper2" id="portfolio">
     <div class="wrap">
       <div class="shead">
         <span class="eyebrow">Portfolio</span>
@@ -422,29 +431,31 @@ section.band.tight{padding:60px 0}
   <!-- INVESTORS -->
   <section class="band" id="investors">
     <div class="wrap">
-      <div class="shead">
+      <div class="shead" style="margin-bottom:24px">
         <span class="eyebrow">For investors</span>
+        <h2>The room matters as much as the deals</h2>
       </div>
-      <div class="paths" style="margin-bottom:42px">
+      <div class="bubbles" style="margin-bottom:56px">
+        <div class="bubble">Monthly deal rooms, dinners, and socials across the region</div>
+        <div class="bubble">Matching angels by interest, background, and seniority</div>
+        <div class="bubble">Panels and speaker nights with founders and operators</div>
+        <div class="bubble">Advisor and mentor connections, to each other and to the founders we back</div>
+      </div>
+      <div class="paths cols2" style="margin-bottom:48px">
         <div class="path">
-          <div class="n">Never invested</div>
+          <div class="n">New or curious</div>
           <h3>Start without the guesswork</h3>
-          <p>You don't need a track record to belong. If you've never written a check, you start here: sit in on live deals at the deal room, learn how it works through the fellowship, and back the ecosystem you live in</p>
+          <p>You don't need a track record to belong. Pull up to the monthly deal room, sit in on live deals, learn how it works through the fellowship, and back the ecosystem you live in</p>
         </div>
         <div class="path">
           <div class="n">Experienced angel</div>
           <h3>Better deals, better company</h3>
           <p>Diligence-backed deals, co-investment alongside leads you trust, and invite-only gatherings with other angels who've been doing this a while</p>
         </div>
-        <div class="path">
-          <div class="n">Just curious</div>
-          <h3>Come see how it works</h3>
-          <p>Pull up to the monthly deal room, meet the community, and decide for yourself</p>
-        </div>
       </div>
-      <div class="split rev">
-        <div class="featimg">
-          <svg class="dome" viewBox="0 0 48 48" fill="none"><path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/><path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/><path d="M11 34h26v4H11z" fill="currentColor"/></svg>
+      <div class="split rev compact">
+        <div class="dealimg">
+          <img src="assets/deal-room.jpg" alt="District Angels deal room" onerror="this.style.display='none';this.parentElement.classList.add('noimg')">
           <span class="cap">The Deal Room · monthly</span>
         </div>
         <div>
@@ -454,18 +465,6 @@ section.band.tight{padding:60px 0}
           <div class="hero-cta"><a class="btn btn-ink" href="#join">Get on the list</a></div>
         </div>
       </div>
-
-      <div class="shead" style="margin-top:64px;margin-bottom:22px">
-        <span class="eyebrow">Community</span>
-        <h2>The room matters as much as the deals</h2>
-        <p>The deals are one part of it. The people are the bigger draw, so we spend a lot of time bringing the right ones together and keeping them close.</p>
-      </div>
-      <ul class="checklist">
-        <li><span class="ck">/</span> Monthly deal rooms, dinners, and socials across the region</li>
-        <li><span class="ck">/</span> Matching angels by interest, background, and seniority</li>
-        <li><span class="ck">/</span> Panels and speaker nights with founders and operators</li>
-        <li><span class="ck">/</span> Advisor and mentor connections, to each other and to the founders we back</li>
-      </ul>
     </div>
   </section>
 
@@ -589,7 +588,6 @@ section.band.tight{padding:60px 0}
         <div class="logo"><img src="logos/new-dominion-angels.png" alt="New Dominion Angels" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">New Dominion Angels</span></div>
         <div class="logo"><img src="logos/neds-club.png" alt="Ned's Club" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Ned's Club</span></div>
         <div class="logo"><img src="logos/dedico.png" alt="Dedico" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logo-txt">Dedico</span></div>
-        <div class="logo"><span class="logo-txt" style="display:block;color:var(--slate)">+ more</span></div>
       </div>
 
       <div class="split rev">
@@ -606,7 +604,7 @@ section.band.tight{padding:60px 0}
             <li><span class="ck">/</span> Host private events that put institutions and investors in front of companies founded by diaspora founders in the US</li>
             <li><span class="ck">/</span> Help international and diaspora founders raise from angels who understand their markets</li>
           </ul>
-          <div class="hero-cta"><a class="btn btn-ink" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Pair up with us</a></div>
+          <div class="hero-cta"><a class="btn btn-ink" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Connect with us</a></div>
         </div>
       </div>
     </div>
@@ -632,7 +630,7 @@ section.band.tight{padding:60px 0}
       <div class="three">
         <div class="card"><div class="k">Investors</div><h3>Join the community</h3><p>New or seasoned. Get on the list for the deal room, memos, and gatherings.</p><div class="hero-cta" style="margin-top:20px"><a class="btn btn-coral" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Join now</a></div></div>
         <div class="card"><div class="k">Founders</div><h3>Submit your raise</h3><p>Building in our sectors, anywhere? Send it over and we'll take a look.</p><div class="hero-cta" style="margin-top:20px"><a class="btn btn-ink" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Submit a pitch</a></div></div>
-        <div class="card"><div class="k">Partners</div><h3>Build with us</h3><p>Run a group, embassy, or institution? Let's co-host and trade deal flow.</p><div class="hero-cta" style="margin-top:20px"><a class="btn btn-ink" href="mailto:team@districtangels.com">Email us</a></div></div>
+        <div class="card"><div class="k">Partners</div><h3>Build with us</h3><p>Run a group, embassy, or institution? Let's co-host.</p><div class="hero-cta" style="margin-top:20px"><a class="btn btn-ink" href="mailto:team@districtangels.com">Pair up with us</a></div></div>
       </div>
     </div>
   </section>
