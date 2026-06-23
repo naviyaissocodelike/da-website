@@ -37,7 +37,7 @@ section[id]{scroll-margin-top:80px}
 .nav{position:sticky;top:0;z-index:60;background:rgba(13,22,38,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-light)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
 .brand{display:flex;align-items:center;gap:11px;cursor:pointer}
-.brand-logo{height:44px;width:auto;display:block}
+.brand-mark{height:32px;width:auto;display:block}
 .brand .dome{width:26px;height:26px;color:#fff}
 .brand .name{font-family:var(--serif);color:#fff;font-size:20px;letter-spacing:.02em;line-height:1}
 .nav-links{display:flex;align-items:center;gap:2px}
@@ -268,16 +268,16 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;o
 <nav class="nav">
   <div class="wrap nav-inner">
     <a class="brand" href="#top">
-      <img class="brand-logo" src="assets/da-logo.png" alt="District Angels" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'">
-      <span class="brand-fallback" style="display:inline-flex;align-items:center;gap:11px">
+      <img class="brand-mark" src="assets/da-logo-mark.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'">
+      <span style="display:none">
         <svg class="dome" viewBox="0 0 48 48" fill="none" aria-hidden="true">
           <circle cx="24" cy="5" r="2" fill="currentColor"/><path d="M24 7v4" stroke="currentColor" stroke-width="1.5"/>
           <path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/>
           <path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/>
           <path d="M11 34h26v4H11z" fill="currentColor"/><path d="M9 38h30v3H9z" fill="currentColor"/>
         </svg>
-        <span class="name">District Angels</span>
       </span>
+      <span class="name">District Angels</span>
     </a>
     <div class="nav-links" id="navlinks">
       <div class="has-drop">
