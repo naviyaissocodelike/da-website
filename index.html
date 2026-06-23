@@ -37,6 +37,7 @@ section[id]{scroll-margin-top:80px}
 .nav{position:sticky;top:0;z-index:60;background:rgba(13,22,38,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-light)}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
 .brand{display:flex;align-items:center;gap:11px;cursor:pointer}
+.brand-logo{height:44px;width:auto;display:block}
 .brand .dome{width:26px;height:26px;color:#fff}
 .brand .name{font-family:var(--serif);color:#fff;font-size:20px;letter-spacing:.02em;line-height:1}
 .nav-links{display:flex;align-items:center;gap:2px}
@@ -245,13 +246,16 @@ section.band.tight{padding:60px 0}
 <nav class="nav">
   <div class="wrap nav-inner">
     <a class="brand" href="#top">
-      <svg class="dome" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-        <circle cx="24" cy="5" r="2" fill="currentColor"/><path d="M24 7v4" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/>
-        <path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/>
-        <path d="M11 34h26v4H11z" fill="currentColor"/><path d="M9 38h30v3H9z" fill="currentColor"/>
-      </svg>
-      <span class="name">District Angels</span>
+      <img class="brand-logo" src="assets/da-logo.png" alt="District Angels" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'">
+      <span class="brand-fallback" style="display:inline-flex;align-items:center;gap:11px">
+        <svg class="dome" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <circle cx="24" cy="5" r="2" fill="currentColor"/><path d="M24 7v4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/>
+          <path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M11 34h26v4H11z" fill="currentColor"/><path d="M9 38h30v3H9z" fill="currentColor"/>
+        </svg>
+        <span class="name">District Angels</span>
+      </span>
     </a>
     <div class="nav-links" id="navlinks">
       <div class="has-drop">
@@ -263,9 +267,9 @@ section.band.tight{padding:60px 0}
           <a href="#portfolio">Portfolio<small>What we've backed</small></a>
         </div></div>
       </div>
-      <a class="lk" href="#fellowship">Fellowship</a>
       <a class="lk" href="#investors">Investors</a>
       <a class="lk" href="#founders">Founders</a>
+      <a class="lk" href="#fellowship">Fellowship</a>
       <a class="lk" href="#partners">Partners</a>
       <a class="lk nav-cta" href="#join">Join Us</a>
     </div>
@@ -440,6 +444,65 @@ section.band.tight{padding:60px 0}
     </div>
   </section>
 
+  <!-- INVESTORS -->
+  <section class="band" id="investors">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">For investors</span>
+        <h2>However you show up, there's a way in</h2>      </div>
+      <div class="paths" style="margin-bottom:42px">
+        <div class="path">
+          <div class="n">Never invested</div>
+          <h3>Start without the guesswork</h3>
+          <p>You don't need a track record to belong. Professionals who've never written a check start here: see live deals at the deal room, learn the moves through the fellowship, and get exposure to innovation while backing the ecosystem you live in.</p>
+        </div>
+        <div class="path">
+          <div class="n">Experienced angel</div>
+          <h3>Sharper signal, better company</h3>
+          <p>Curated, diligence-backed opportunities, co-investment alongside credible leads, and invitation-only gatherings with people operating at your altitude. Less noise, more conviction.</p>
+        </div>
+        <div class="path">
+          <div class="n">Just curious</div>
+          <h3>Come see how it works</h3>
+          <p>Pull up to the monthly deal room, meet the community, and decide for yourself. No commitment to walk in the door.</p>
+        </div>
+      </div>
+      <div class="split rev">
+        <div class="featimg">
+          <svg class="dome" viewBox="0 0 48 48" fill="none"><path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/><path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/><path d="M11 34h26v4H11z" fill="currentColor"/></svg>
+          <span class="cap">The Deal Room · monthly</span>
+        </div>
+        <div>
+          <span class="eyebrow">The deal room</span>
+          <p>Once a month we put founders in front of the room. You hear the pitch, read the memo, ask the hard questions, and signal where you stand. It's the best night in the DMV to meet other angels and the people building what's next.</p>
+          <div class="hero-cta"><a class="btn btn-ink" href="#join">Get on the list</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDERS -->
+  <section class="deep band" id="founders">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">For founders</span>
+      </div>
+      <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">What we back</span></div>
+      <div class="three" style="margin-bottom:48px">
+        <div class="card"><div class="k">Sectors</div><h3>Industry-agnostic, with a bias</h3><p>We'll look at any sector, and lean hardest into the ones we know cold: dual-use, cyber, health, climate, and fintech.</p></div>
+        <div class="card"><div class="k">Check size</div><h3>$50k to $200k</h3><p>We pool capital into an SPV for each deal, and we're glad to co-invest alongside other angels and leads.</p></div>
+        <div class="card"><div class="k">Geography</div><h3>Build anywhere</h3><p>We back companies wherever they're based. Our investor community is the part that stays rooted in the capital region.</p></div>
+      </div>
+      <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">What happens when you submit</span></div>
+      <div class="three" style="margin-bottom:38px">
+        <div class="card"><div class="k">01</div><h3>Hear back in 5 days</h3><p>We get back to you on next steps within five days. No black box, no ghosting.</p></div>
+        <div class="card"><div class="k">02</div><h3>Reach the community</h3><p>With your go-ahead, we share your opportunity with our broader community of angels.</p></div>
+        <div class="card"><div class="k">03</div><h3>Line up co-investors</h3><p>When there's a fit, we help you find co-investors to round out the raise.</p></div>
+      </div>
+      <div class="hero-cta"><a class="btn btn-coral" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Submit your raise</a></div>
+    </div>
+  </section>
+
   <!-- FELLOWSHIP -->
   <section class="dark band" id="fellowship">
     <div class="wrap">
@@ -506,58 +569,6 @@ section.band.tight{padding:60px 0}
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- INVESTORS -->
-  <section class="band" id="investors">
-    <div class="wrap">
-      <div class="shead">
-        <span class="eyebrow">For investors</span>
-        <h2>However you show up, there's a way in</h2>      </div>
-      <div class="paths" style="margin-bottom:42px">
-        <div class="path">
-          <div class="n">Never invested</div>
-          <h3>Start without the guesswork</h3>
-          <p>You don't need a track record to belong. Professionals who've never written a check start here: see live deals at the deal room, learn the moves through the fellowship, and get exposure to innovation while backing the ecosystem you live in.</p>
-        </div>
-        <div class="path">
-          <div class="n">Experienced angel</div>
-          <h3>Sharper signal, better company</h3>
-          <p>Curated, diligence-backed opportunities, co-investment alongside credible leads, and invitation-only gatherings with people operating at your altitude. Less noise, more conviction.</p>
-        </div>
-        <div class="path">
-          <div class="n">Just curious</div>
-          <h3>Come see how it works</h3>
-          <p>Pull up to the monthly deal room, meet the community, and decide for yourself. No commitment to walk in the door.</p>
-        </div>
-      </div>
-      <div class="split rev">
-        <div class="featimg">
-          <svg class="dome" viewBox="0 0 48 48" fill="none"><path d="M16 22c0-6 3.6-10 8-10s8 4 8 10" stroke="currentColor" stroke-width="2"/><path d="M13 22h22" stroke="currentColor" stroke-width="2"/><path d="M15 22v12M20 22v12M24 22v12M28 22v12M33 22v12" stroke="currentColor" stroke-width="1.6"/><path d="M11 34h26v4H11z" fill="currentColor"/></svg>
-          <span class="cap">The Deal Room · monthly</span>
-        </div>
-        <div>
-          <span class="eyebrow">The deal room</span>
-          <p>Once a month we put founders in front of the room. You hear the pitch, read the memo, ask the hard questions, and signal where you stand. It's the best night in the DMV to meet other angels and the people building what's next.</p>
-          <div class="hero-cta"><a class="btn btn-ink" href="#join">Get on the list</a></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOUNDERS -->
-  <section class="deep band" id="founders">
-    <div class="wrap">
-      <div class="shead">
-        <span class="eyebrow">For founders</span>
-      </div>
-      <div class="three" style="margin-bottom:38px">
-        <div class="card"><div class="k">01</div><h3>Hear back in 5 days</h3><p>We get back to you on next steps within five days. No black box, no ghosting.</p></div>
-        <div class="card"><div class="k">02</div><h3>Reach the community</h3><p>With your go-ahead, we share your opportunity with our broader community of angels.</p></div>
-        <div class="card"><div class="k">03</div><h3>Line up co-investors</h3><p>When there's a fit, we help you find co-investors to round out the raise.</p></div>
-      </div>
-      <div class="hero-cta"><a class="btn btn-coral" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Submit your raise</a></div>
     </div>
   </section>
 
@@ -656,9 +667,9 @@ section.band.tight{padding:60px 0}
         <li><a href="#portfolio">Portfolio</a></li>
       </ul></div>
       <div><h5>Take part</h5><ul>
-        <li><a href="#fellowship">Fellowship</a></li>
         <li><a href="#investors">Investors</a></li>
         <li><a href="#founders">Founders</a></li>
+        <li><a href="#fellowship">Fellowship</a></li>
         <li><a href="#partners">Partners</a></li>
       </ul></div>
       <div><h5>Connect</h5><ul>
