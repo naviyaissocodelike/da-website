@@ -1,5 +1,9 @@
 # Site assets
 
+## Hero image
+
+The hero looks for `assets/hero.jpg`. Drop a wide, landscape photo here (one of your event shots works great, ideally 2000px+ wide) and it appears as a dimmed background behind the headline, with a dark wash so the white text stays readable. If no file is present, the hero falls back to the dark gradient. Busy or bright photos still read fine because of the wash.
+
 ## Deal room image
 
 The investors section shows a small landscape image for the monthly deal room. Drop a photo here named `deal-room.jpg` (roughly 3:2, landscape) and it appears automatically. Until then, the slot shows a clean dark gradient with the "The Deal Room · monthly" caption.
