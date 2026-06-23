@@ -1,19 +1,27 @@
 # Partner logos
 
-Drop each partner's logo into this folder using the exact filename below. Until a file is present, the site automatically falls back to showing the partner's name as text, so nothing breaks if a logo is missing.
+Each partner slot in the site loads an image from this folder and falls back to the partner's name as text if the file is missing, so nothing breaks.
 
-- `dmv-angels.png` — DMV Angels
-- `oath-capital.png` — Oath Capital
-- `new-dominion-angels.png` — New Dominion Angels
-- `university-of-virginia.png` — University of Virginia
-- `neds-club.png` — Ned's Club
+## In place
+
+- `dmv-angels.jpeg` — DMV Angel Group (shown on a dark card; logo is white-on-black)
 - `american-university.png` — American University
-- `arlington-economic-development.png` — Arlington Economic Development
-- `dedico.png` — Dedico
+- `university-of-virginia.png` — UVA Batten
+- `arlington-economic-development.jpeg` — Arlington Economic Development
 - `maryland-momentum-fund.png` — Maryland Momentum Fund
 - `maryland-innovation-center.png` — Maryland Innovation Center
-- `md-energy-innovation-accelerator.png` — MD Energy Innovation Accelerator
+- `md-energy-innovation-accelerator.png` — Maryland Energy Innovation Accelerator
+- `resilient-earth-capital.png` — Resilient Earth Capital
+- `abell-foundation.png` — Abell Foundation
+- `inspire-access.png` — Inspire Access (shown on a dark card; logo is white)
+
+## Still showing as text (drop a file in to replace)
+
+- `oath-capital.png` — Oath Capital
+- `new-dominion-angels.png` — New Dominion Angels
+- `neds-club.png` — Ned's Club
+- `dedico.png` — Dedico
 
 Tips:
-- PNG with a transparent background looks best. If you only have an SVG or JPG, either convert it to PNG or change the `src` extension in `index.html` to match.
-- Logos render in grayscale and turn full-color on hover. Aim for roughly 400px wide; they're capped at 48px tall in the layout.
+- Transparent PNG looks best. If a logo is white/light, it needs a dark card — add the `on-dark` class to its `<div class="logo ...">` in `index.html` (see DMV and Inspire Access for the pattern).
+- Logos are capped at 46px tall; width scales automatically.
