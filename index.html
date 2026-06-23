@@ -187,12 +187,12 @@ section.band.tight{padding:60px 0}
 .path p{color:var(--slate);font-size:15px;flex:1}
 
 /* PARTNERS */
-.logos{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.logo{border:1px solid var(--line);border-radius:11px;padding:20px 18px;background:var(--paper-2);text-align:center;display:flex;align-items:center;justify-content:center;min-height:88px;transition:border-color .2s,transform .2s}
-.logo:hover{border-color:var(--coral);transform:translateY(-2px)}
-.logo img{max-height:46px;max-width:100%;width:auto;object-fit:contain}
-.logo.on-dark{background:var(--ink);border-color:var(--line-light)}
-.logo .logo-txt{display:none;font-weight:600;font-size:15px;color:var(--ink)}
+.logos{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:30px 50px}
+.logo{display:flex;align-items:center;justify-content:center;padding:4px 0;transition:opacity .2s}
+.logo:hover{opacity:.65}
+.logo img{max-height:50px;max-width:175px;width:auto;object-fit:contain}
+.logo .logo-txt{display:none;font-weight:600;font-size:16px;color:var(--slate)}
+.logo.on-dark{background:var(--ink-deep);border-radius:10px;padding:10px 16px}
 .perks{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
 
 /* REPORTS */
@@ -424,22 +424,22 @@ section.band.tight{padding:60px 0}
     <div class="wrap">
       <div class="shead">
         <span class="eyebrow">For investors</span>
-        <h2>However you show up, there's a way in</h2>      </div>
+      </div>
       <div class="paths" style="margin-bottom:42px">
         <div class="path">
           <div class="n">Never invested</div>
           <h3>Start without the guesswork</h3>
-          <p>You don't need a track record to belong. Professionals who've never written a check start here: see live deals at the deal room, learn the moves through the fellowship, and get exposure to innovation while backing the ecosystem you live in.</p>
+          <p>You don't need a track record to belong. If you've never written a check, you start here: sit in on live deals at the deal room, learn how it works through the fellowship, and back the ecosystem you live in</p>
         </div>
         <div class="path">
           <div class="n">Experienced angel</div>
-          <h3>Sharper signal, better company</h3>
-          <p>Curated, diligence-backed opportunities, co-investment alongside credible leads, and invitation-only gatherings with people operating at your altitude. Less noise, more conviction.</p>
+          <h3>Better deals, better company</h3>
+          <p>Diligence-backed deals, co-investment alongside leads you trust, and invite-only gatherings with other angels who've been doing this a while</p>
         </div>
         <div class="path">
           <div class="n">Just curious</div>
           <h3>Come see how it works</h3>
-          <p>Pull up to the monthly deal room, meet the community, and decide for yourself. No commitment to walk in the door.</p>
+          <p>Pull up to the monthly deal room, meet the community, and decide for yourself</p>
         </div>
       </div>
       <div class="split rev">
@@ -449,10 +449,23 @@ section.band.tight{padding:60px 0}
         </div>
         <div>
           <span class="eyebrow">The deal room</span>
-          <p>Once a month we put founders in front of the room. You hear the pitch, read the memo, ask the hard questions, and signal where you stand. It's the best night in the DMV to meet other angels and the people building what's next.</p>
+          <h2>Our monthly deal room</h2>
+          <p>A live, virtual session where we dig into our top startups with candor. Expect lightning intros from new angels, deep dives on three startups with live founder Q&amp;A and a closed-door investor discussion, and pipeline deals you can help diligence alongside our Fellows and team.</p>
           <div class="hero-cta"><a class="btn btn-ink" href="#join">Get on the list</a></div>
         </div>
       </div>
+
+      <div class="shead" style="margin-top:64px;margin-bottom:22px">
+        <span class="eyebrow">Community</span>
+        <h2>The room matters as much as the deals</h2>
+        <p>The deals are one part of it. The people are the bigger draw, so we spend a lot of time bringing the right ones together and keeping them close.</p>
+      </div>
+      <ul class="checklist">
+        <li><span class="ck">/</span> Monthly deal rooms, dinners, and socials across the region</li>
+        <li><span class="ck">/</span> Matching angels by interest, background, and seniority</li>
+        <li><span class="ck">/</span> Panels and speaker nights with founders and operators</li>
+        <li><span class="ck">/</span> Advisor and mentor connections, to each other and to the founders we back</li>
+      </ul>
     </div>
   </section>
 
@@ -464,15 +477,15 @@ section.band.tight{padding:60px 0}
       </div>
       <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">What we back</span></div>
       <div class="three" style="margin-bottom:48px">
-        <div class="card"><div class="k">Sectors</div><h3>Industry-agnostic, with a bias</h3><p>We'll look at any sector, and lean hardest into the ones we know cold: dual-use, cyber, health, climate, and fintech.</p></div>
-        <div class="card"><div class="k">Check size</div><h3>$50k to $200k</h3><p>We pool capital into an SPV for each deal, and we're glad to co-invest alongside other angels and leads.</p></div>
-        <div class="card"><div class="k">Geography</div><h3>Build anywhere</h3><p>We back companies wherever they're based. Our investor community is the part that stays rooted in the capital region.</p></div>
+        <div class="card"><div class="k">Sectors</div><h3>Industry-agnostic, with a bias</h3><p>We back founders in any sector, and we go deepest in dual-use &amp; defense, cyber, biotech, health, climate, and fintech</p></div>
+        <div class="card"><div class="k">Check size</div><h3>$50k to $200k</h3><p>We pool capital into an SPV for each deal, and we're glad to co-invest alongside other angel groups</p></div>
+        <div class="card"><div class="k">Geography</div><h3>Build anywhere</h3><p>We back companies wherever they're based. Our investor community is the part that stays rooted in the capital region</p></div>
       </div>
       <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">What happens when you submit</span></div>
       <div class="three" style="margin-bottom:38px">
-        <div class="card"><div class="k">01</div><h3>Hear back in 5 days</h3><p>We get back to you on next steps within five days. No black box, no ghosting.</p></div>
-        <div class="card"><div class="k">02</div><h3>Reach the community</h3><p>With your go-ahead, we share your opportunity with our broader community of angels.</p></div>
-        <div class="card"><div class="k">03</div><h3>Line up co-investors</h3><p>When there's a fit, we help you find co-investors to round out the raise.</p></div>
+        <div class="card"><div class="k">01</div><h3>Hear back in 5 days</h3><p>We get back to you on next steps within five days</p></div>
+        <div class="card"><div class="k">02</div><h3>Reach the community</h3><p>With your go-ahead, we share your opportunity with our broader community of angel groups</p></div>
+        <div class="card"><div class="k">03</div><h3>Line up co-investors</h3><p>When there's a fit, we help you find co-investors to round out the raise</p></div>
       </div>
       <div class="hero-cta"><a class="btn btn-coral" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Submit your raise</a></div>
     </div>
@@ -485,10 +498,9 @@ section.band.tight{padding:60px 0}
         <div>
           <span class="eyebrow">Halo Fellowship · Cohort 04 in session</span>
           <h2>Learn to invest by actually investing</h2>
-          <p>A hands-on program for students, career-switchers, and professionals who want reps in early-stage investing, not a syllabus. Run diligence on live deals, write memos the community reads, and publish a market report under your name.</p>
+          <p>A program for students, career-switchers, and professionals who want to learn about the ecosystem and early-stage investing. Run diligence on live deals, write memos the community reads, and publish a market report under your name.</p>
           <ul class="checklist">
             <li><span class="ck">/</span> 8 to 10 hours per week, 6 to 10 weeks</li>
-            <li><span class="ck">/</span> Two cohorts a year</li>
             <li><span class="ck">/</span> No prior investing experience required</li>
           </ul>
           <div class="hero-cta"><a class="btn btn-coral" href="#join">Apply to a cohort</a></div>
@@ -553,12 +565,12 @@ section.band.tight{padding:60px 0}
       <div class="shead">
         <span class="eyebrow">Partners</span>
         <h2>We're always looking to do more, together</h2>
-        <p>We co-host events, put our partners in front of the community, trade deal flow, and build with the institutions that make the DMV move. If that's you, let's talk.</p>
+        <p>We don't do any of this alone. We co-host events, share deal flow, and build alongside the angel groups, universities, and institutions across the region. If that sounds like you, we'd love to talk.</p>
       </div>
       <div class="perks" style="margin-bottom:44px">
-        <div class="card"><div class="k">Co-host</div><h3>Run events with us</h3><p>From deal rooms to demo nights, we co-host across the region and bring the angels.</p></div>
-        <div class="card"><div class="k">Visibility</div><h3>Reach our community</h3><p>Get your programs, founders, and brand in front of an engaged room of investors and operators.</p></div>
-        <div class="card"><div class="k">Deal flow</div><h3>Trade with us</h3><p>Share your pipeline to reach local angels, and send us companies to look at for regional capital. Clean terms and reciprocity.</p></div>
+        <div class="card"><div class="k">Co-host</div><h3>Co-host events with us</h3><p>From deal rooms to demo nights, we co-host across the region and bring the angels</p></div>
+        <div class="card"><div class="k">Visibility</div><h3>Reach our audience</h3><p>Get your programs, founders, and brand in front of an engaged room of investors and operators</p></div>
+        <div class="card"><div class="k">Deal flow</div><h3>Share deal flow</h3><p>Share your pipeline to reach local angels, and send us companies to look at for regional capital. Clean terms and reciprocity</p></div>
       </div>
 
       <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">Working with</span></div>
@@ -594,7 +606,7 @@ section.band.tight{padding:60px 0}
             <li><span class="ck">/</span> Host private events that put institutions and investors in front of companies founded by diaspora founders in the US</li>
             <li><span class="ck">/</span> Help international and diaspora founders raise from angels who understand their markets</li>
           </ul>
-          <div class="hero-cta"><a class="btn btn-ink" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Partner with us</a></div>
+          <div class="hero-cta"><a class="btn btn-ink" href="https://tally.so/r/0QjoDB" target="_blank" rel="noopener">Pair up with us</a></div>
         </div>
       </div>
     </div>
@@ -652,7 +664,6 @@ section.band.tight{padding:60px 0}
       <div><h5>Connect</h5><ul>
         <li><a href="mailto:team@districtangels.com">team@districtangels.com</a></li>
         <li><a href="https://www.linkedin.com/showcase/district-angels/" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li><a href="https://districtangels.substack.com" target="_blank" rel="noopener">Substack</a></li>
         <li><a href="https://lu.ma/user/usr-zbARQX9qqtQoF6E" target="_blank" rel="noopener">Events</a></li>
       </ul></div>
     </div>
