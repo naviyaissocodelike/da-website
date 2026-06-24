@@ -13,11 +13,9 @@ Single-page marketing site for District Angels, a DCTAV-affiliated angel investi
 2. In the repo (`naviyaissocodelike/da-website`), go to **Settings → Pages**.
 3. Under **Build and deployment → Source**, pick **Deploy from a branch**.
 4. Set branch to `main` and folder to `/ (root)`, then **Save**.
-5. The site is live at `https://battleoftheregions.com` (custom domain).
+5. The site goes live at `https://naviyaissocodelike.github.io/da-website/` within a minute or two.
 
-## Custom domain (battleoftheregions.com)
-
-DNS is configured at Namecheap: four apex `A` records to GitHub's IPs (`185.199.108–111.153`) and a `www` `CNAME` to `naviyaissocodelike.github.io`. The `CNAME` file at the repo root holds `battleoftheregions.com`, which is what tells GitHub Pages to serve the site there. After pushing, set the same domain under Settings → Pages → Custom domain and enable **Enforce HTTPS** once the certificate provisions.
+To use a custom domain later, add it under Settings → Pages → Custom domain and create a `CNAME` file at the root with that domain. (Note: `battleoftheregions.com` is a separate site, the battle-of-the-regions repo, not this one.)
 
 ## Files
 
