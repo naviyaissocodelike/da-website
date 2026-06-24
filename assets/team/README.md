@@ -10,6 +10,9 @@ Square photos look best (they're shown in a 132px circle, cropped to fill). Aim 
 - `sriram-gollapalli.jpg` — Sriram Gollapalli
 - `brandon-kortokrax.jpg` — Brandon Kortokrax
 - `mike-king.jpg` — Mike King
+- `kevin-morgan.jpg` — Kevin Morgan
+- `michelle-urben.jpg` — Michelle Urben
+- `ashtan-moore.jpg` — Ashtan Moore
 - `abdul-khan.jpg` — Abdul Khan
 - `ka-jana-justin.jpg` — Ka-Jana Justin
 - `francis-tay.jpg` — Francis Tay

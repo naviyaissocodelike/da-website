@@ -144,6 +144,9 @@ section.band.tight{padding:60px 0}
 .avatar.c{background:linear-gradient(140deg,var(--coral),var(--coral-deep))}
 .member .mn{font-family:var(--serif);font-size:22px;color:#fff}
 .member .role{font-family:var(--mono);font-size:13px;color:var(--slate);letter-spacing:.04em;margin-top:6px}
+.member .mli{display:inline-flex;margin-top:9px;color:var(--slate-light);transition:color .18s}
+.member .mli:hover{color:var(--blue)}
+.member .mli svg{width:18px;height:18px}
 
 /* PORTFOLIO */
 .pf{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -267,4 +270,12 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;o
 .pf .co{position:relative}
 .pf .co .colo{position:absolute;top:26px;right:26px;height:26px;max-width:96px;width:auto;object-fit:contain}
 .pf .co .nm{padding-right:80px}
+.featimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.featimg .cap{z-index:1}
+.gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:162px;gap:12px}
+.gtile{position:relative;overflow:hidden;border-radius:6px;background:linear-gradient(150deg,var(--ink-2),var(--ink-deep))}
+.gtile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gtile.wide{grid-column:span 2}
+.gtile.tall{grid-row:span 2}
+@media (max-width:760px){.gallery{grid-template-columns:repeat(2,1fr);grid-auto-rows:140px}.gtile.tall{grid-row:span 1}}
 @media (max-width:760px){.ifeats{grid-template-columns:repeat(2,1fr)}}
