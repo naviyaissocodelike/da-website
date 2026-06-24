@@ -270,7 +270,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;o
 .prog .pd{font-size:15px;color:var(--slate);line-height:1.45}
 @media (max-width:760px){.progs{grid-template-columns:1fr}}
 .pf .co{position:relative}
-.pf .co .colo{position:absolute;top:28px;right:30px;height:46px;max-width:150px;width:auto;object-fit:contain}
+.pf .co .colo{position:absolute;top:28px;right:30px;height:38px;max-width:110px;width:auto;object-fit:contain}
 .featcap{display:block;font-family:var(--mono);font-size:12px;color:var(--slate);letter-spacing:.08em;margin-top:14px;text-align:center}
 .repgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
 .repcard{display:flex;flex-direction:column}
@@ -282,7 +282,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;o
 .repcard .blurb{color:var(--slate);font-size:16px;line-height:1.55;flex:1}
 .repcard .vlink{font-family:var(--mono);font-size:12px;color:var(--coral);letter-spacing:.04em;margin-top:18px}
 @media (max-width:760px){.repgrid{grid-template-columns:1fr}}
-.pf .co .nm{padding-right:80px}
+.pf .co .nm{padding-right:124px}
 .featimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .featimg .cap{z-index:1}
 .gallery{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:162px;gap:12px}
