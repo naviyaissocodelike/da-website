@@ -270,7 +270,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;o
 .prog .pd{font-size:15px;color:var(--slate);line-height:1.45}
 @media (max-width:760px){.progs{grid-template-columns:1fr}}
 .pf .co{position:relative}
-.pf .co .colo{position:absolute;top:28px;right:30px;height:34px;max-width:120px;width:auto;object-fit:contain}
+.pf .co .colo{position:absolute;top:28px;right:30px;height:46px;max-width:150px;width:auto;object-fit:contain}
 .featcap{display:block;font-family:var(--mono);font-size:12px;color:var(--slate);letter-spacing:.08em;margin-top:14px;text-align:center}
 .repgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
 .repcard{display:flex;flex-direction:column}
