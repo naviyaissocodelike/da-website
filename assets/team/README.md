@@ -18,5 +18,6 @@ Square photos look best (they're shown in a 132px circle, cropped to fill). Aim 
 - `francis-tay.jpg` — Francis Tay
 - `mallika-patkar.jpg` — Mallika Patkar
 - `victoria-adofoli.jpg` — Victoria Adofoli
+- `lucas-pham.jpg` — Lucas Pham
 
 If a photo is a `.png` instead of `.jpg`, either convert it or change the `src` extension for that person in `index.html`.
