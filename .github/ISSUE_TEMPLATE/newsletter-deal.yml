@@ -1,0 +1,34 @@
+name: "💼 Newsletter: Deal"
+description: Log a deal update for the next newsletter (founder-approved info only — this repo is public)
+title: "[Deal] "
+labels: ["newsletter", "deal"]
+body:
+  - type: markdown
+    attributes:
+      value: "⚠️ **This repo is public.** Only include what the founder has approved for community distribution — no valuations, terms, or diligence notes."
+  - type: input
+    id: stage
+    attributes:
+      label: Stage
+      placeholder: "raising / SPV open / closed"
+    validations:
+      required: true
+  - type: input
+    id: sector
+    attributes:
+      label: Sector & location
+      placeholder: "health tech · Baltimore, MD"
+  - type: textarea
+    id: notes
+    attributes:
+      label: What it is & the CTA
+      description: One or two lines on the company, plus what members should do ("reply for the memo", "join Thursday's diligence call").
+    validations:
+      required: true
+  - type: checkboxes
+    id: approval
+    attributes:
+      label: Approval
+      options:
+        - label: The founder has approved this info for community distribution
+          required: true
