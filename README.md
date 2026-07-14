@@ -21,6 +21,8 @@ To use a custom domain later, add it under Settings → Pages → Custom domain 
 
 - `index.html` — the entire site (HTML, CSS, JS inline)
 - `logos/` — partner logo images; drop files in here (see `logos/README.md`)
+- `newsletter/` — the newsletter pipeline: log events/deals/asks as they happen, compile with `/newsletter`, send via Mailchimp (see `newsletter/README.md`)
+- `.github/ISSUE_TEMPLATE/` — issue forms for logging newsletter items from your phone
 - `.nojekyll` — tells GitHub Pages to serve files as-is without Jekyll processing
 - `README.md` — this file
 
