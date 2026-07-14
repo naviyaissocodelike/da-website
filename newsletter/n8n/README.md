@@ -4,8 +4,8 @@
 
 ## Targets (already created)
 
-- **Running doc:** [DA Newsletter Inbox](https://docs.google.com/document/d/1V47wotuE1oRBUKdpfAI8_0WsoWuSlaKweh8PnM1bqZU/edit) — doc ID `1V47wotuE1oRBUKdpfAI8_0WsoWuSlaKweh8PnM1bqZU`
-- **Image folder:** [DA Newsletter Images](https://drive.google.com/drive/folders/1L4H6cLyZp7YnJyOARMvvObxe1N0U6wFB) — folder ID `1L4H6cLyZp7YnJyOARMvvObxe1N0U6wFB`
+- **Running doc:** [DA Newsletter Inbox](https://docs.google.com/document/d/1GJG638-s2p26Cxv8_AnyP3sfj_5xhm__GHrnnFZoI48/edit) — doc ID `1GJG638-s2p26Cxv8_AnyP3sfj_5xhm__GHrnnFZoI48`
+- **Image folder:** [DA Newsletter Images](https://drive.google.com/drive/folders/1ErC49C4Vvsw3wgitwM1WhfYA1qFdmjCS) — folder ID `1ErC49C4Vvsw3wgitwM1WhfYA1qFdmjCS`
 
 ## Import steps
 

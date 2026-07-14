@@ -43,7 +43,7 @@
       "position": [280, -140],
       "parameters": {
         "operation": "update",
-        "documentURL": "1V47wotuE1oRBUKdpfAI8_0WsoWuSlaKweh8PnM1bqZU",
+        "documentURL": "1GJG638-s2p26Cxv8_AnyP3sfj_5xhm__GHrnnFZoI48",
         "actionsUi": {
           "actionFields": [
             {
@@ -101,7 +101,7 @@
         "operation": "upload",
         "name": "={{ $now.format('yyyy-MM-dd') }}-{{ $('Split out files').item.json.name }}",
         "driveId": { "__rl": true, "mode": "list", "value": "My Drive" },
-        "folderId": { "__rl": true, "mode": "id", "value": "1L4H6cLyZp7YnJyOARMvvObxe1N0U6wFB" },
+        "folderId": { "__rl": true, "mode": "id", "value": "1ErC49C4Vvsw3wgitwM1WhfYA1qFdmjCS" },
         "inputDataFieldName": "data"
       }
     },
@@ -112,7 +112,7 @@
       "position": [1240, 140],
       "parameters": {
         "operation": "update",
-        "documentURL": "1V47wotuE1oRBUKdpfAI8_0WsoWuSlaKweh8PnM1bqZU",
+        "documentURL": "1GJG638-s2p26Cxv8_AnyP3sfj_5xhm__GHrnnFZoI48",
         "actionsUi": {
           "actionFields": [
             {

@@ -19,7 +19,7 @@ Ask: need two health-tech angels for Thursday's diligence call
 Win: Cachai landed their first DoD pilot 🎉
 ```
 
-That's the entire logging step for the team. Behind the scenes, an **n8n workflow** (see [`n8n/`](n8n/)) mirrors every channel message into a running Google Doc ([DA Newsletter Inbox](https://docs.google.com/document/d/1V47wotuE1oRBUKdpfAI8_0WsoWuSlaKweh8PnM1bqZU/edit)) and saves any attached images to the [DA Newsletter Images](https://drive.google.com/drive/folders/1L4H6cLyZp7YnJyOARMvvObxe1N0U6wFB) Drive folder — automatically, as things are posted. Nobody maintains the doc by hand.
+That's the entire logging step for the team. Behind the scenes, an **n8n workflow** (see [`n8n/`](n8n/)) mirrors every channel message into a running Google Doc ([DA Newsletter Inbox](https://docs.google.com/document/d/1GJG638-s2p26Cxv8_AnyP3sfj_5xhm__GHrnnFZoI48/edit)) and saves any attached images to the [DA Newsletter Images](https://drive.google.com/drive/folders/1ErC49C4Vvsw3wgitwM1WhfYA1qFdmjCS) Drive folder — automatically, as things are posted. Nobody maintains the doc by hand.
 
 Fallbacks if Slack isn't handy: the GitHub issue forms (📅 Event / 💼 Deal / 🙋 Ask / 📣 News — good from the GitHub mobile app) or a file dropped in [`inbox/`](inbox/). All surfaces get swept together.
 
@@ -43,7 +43,7 @@ You can also skip the custom template and paste the section copy into any Mailch
 
 ## Images
 
-Images dropped in the channel are auto-saved by n8n to the [DA Newsletter Images](https://drive.google.com/drive/folders/1L4H6cLyZp7YnJyOARMvvObxe1N0U6wFB) Drive folder, with a link logged in the running doc. That solves *saving* them — Slack's free plan expires old files, Drive doesn't.
+Images dropped in the channel are auto-saved by n8n to the [DA Newsletter Images](https://drive.google.com/drive/folders/1ErC49C4Vvsw3wgitwM1WhfYA1qFdmjCS) Drive folder, with a link logged in the running doc. That solves *saving* them — Slack's free plan expires old files, Drive doesn't.
 
 For *using* them in the email: Slack and Drive URLs don't work in emails (they require login), so at send time either drag the image from Drive into **Mailchimp's content studio** (Mailchimp hosts it publicly — simplest), or commit reusable ones (logos, headers) to `assets/newsletter/YYYY-MM/` in this repo for a stable GitHub Pages URL. The compiled draft lists every image and where it should go, so nothing gets lost.
 
