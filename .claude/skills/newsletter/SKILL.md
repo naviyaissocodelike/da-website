@@ -7,12 +7,13 @@ description: Compile logged events, deals, asks, and news into a District Angels
 
 ## If the user is LOGGING an item (not compiling)
 
-Create a file in `newsletter/inbox/` from the matching `_TEMPLATE-*.md` (event / deal / ask / news), fill it with what they told you, ask only for genuinely missing essentials (an event needs a date), and commit. Deals: confirm the info is founder-approved before writing it — this repo is public.
+Post it to #da-internal-newsletters (ID `C08HSD1LNN9`) via the Slack connector, formatted as one message with the right prefix (`Event:` / `Deal:` / `Ask:` / `Win:`) and whatever details they gave you — that keeps all items in one place. Ask only for genuinely missing essentials (an event needs a date). If Slack isn't connected in this session, fall back to creating a file in `newsletter/inbox/` from the matching `_TEMPLATE-*.md` and commit. Deals: confirm the info is founder-approved before logging — the repo is public and the newsletter goes to the whole list.
 
 ## If the user is COMPILING an issue
 
 ### 1. Gather
 
+- **Primary: the #da-internal-newsletters Slack channel** (ID `C08HSD1LNN9`, districtangels.slack.com). Read all messages since the date of the last file in `newsletter/issues/` (or the last 60 days if none). Every message is a candidate item — classify each as event / deal / ask / news from its content ("Event:", "Deal:" prefixes help but aren't required). Read threads on items — corrections and details often land there. Note every image/file attachment and which item it belongs to. If the Slack connector isn't available in this session, say so and ask the user to either reconnect Slack or paste the channel contents.
 - Every non-template file in `newsletter/inbox/`
 - Every **open** GitHub issue labeled `newsletter` in this repo (use `gh issue list --label newsletter --state open` or the GitHub MCP tools, whichever is available)
 - Skim `news.html` for reports added since the last issue
@@ -31,7 +32,8 @@ Write `newsletter/issues/YYYY-MM.md` (current year-month) containing:
 - **3 subject line options** (under 50 chars, concrete, no clickbait) + **preview text** (~80 chars)
 - Full copy in the VOICE.md section order, skipping empty sections
 - The opener written in first person — flag it clearly as the section the sender will most want to personalize
-- A `<!-- sources -->` comment at the bottom listing which inbox files and issue numbers fed the draft
+- An **Images** list: every image posted with the swept items, which section it belongs in, and a reminder that Slack URLs don't work in email — each one must be uploaded to Mailchimp's content studio or committed to `assets/newsletter/YYYY-MM/` for a public GitHub Pages URL
+- A `<!-- sources -->` comment at the bottom listing the Slack message timestamps, inbox files, and issue numbers that fed the draft
 
 Never publish a deal whose source has `founder_approved: false` or an unchecked approval box — list it at the bottom under "Held back" instead.
 
@@ -43,7 +45,8 @@ Inject the approved copy into `newsletter/mailchimp-template.html` (replace the 
 
 ### 5. Archive (after the user confirms it's sent or scheduled)
 
-- Move the consumed inbox files to `newsletter/issues/YYYY-MM-items/`
+- The committed `issues/YYYY-MM.md` draft records the Slack timestamps it consumed (in `<!-- sources -->`), so the next compile knows where to start — no need to touch the channel. Optionally offer to post a wrap-up in #da-internal-newsletters ("📬 The YYYY-MM issue went out — everything above this message is in it"), but only send it if the user says yes.
+- Move any consumed inbox files to `newsletter/issues/YYYY-MM-items/`
 - Close each consumed GitHub issue with a comment naming the issue it shipped in (e.g. "Sent in the 2026-08 newsletter")
 - Commit everything
 
