@@ -19,21 +19,21 @@ Ask: need two health-tech angels for Thursday's diligence call
 Win: Cachai landed their first DoD pilot 🎉
 ```
 
-That's the entire logging step. No repo, no forms, no doc to maintain — the channel *is* the running log, and Claude reads it directly at compile time.
+That's the entire logging step for the team. Behind the scenes, an **n8n workflow** (see [`n8n/`](n8n/)) mirrors every channel message into a running Google Doc ([DA Newsletter Inbox](https://docs.google.com/document/d/1V47wotuE1oRBUKdpfAI8_0WsoWuSlaKweh8PnM1bqZU/edit)) and saves any attached images to the [DA Newsletter Images](https://drive.google.com/drive/folders/1L4H6cLyZp7YnJyOARMvvObxe1N0U6wFB) Drive folder — automatically, as things are posted. Nobody maintains the doc by hand.
 
-Fallbacks if Slack isn't handy: the GitHub issue forms (📅 Event / 💼 Deal / 🙋 Ask / 📣 News — good from the GitHub mobile app) or a file dropped in [`inbox/`](inbox/). All three surfaces get swept together.
+Fallbacks if Slack isn't handy: the GitHub issue forms (📅 Event / 💼 Deal / 🙋 Ask / 📣 News — good from the GitHub mobile app) or a file dropped in [`inbox/`](inbox/). All surfaces get swept together.
 
-**Images:** drop them straight in the channel next to the item they belong to. At compile time they get pulled out for the email — see "Images" below.
+**Images:** drop them straight in the channel next to the item they belong to — n8n saves them to Drive and logs a link in the doc, so nothing gets lost when Slack's free-plan history expires.
 
 ### 2. Compile — draft the issue
 
-In a Claude session with the Slack connector (claude.ai/code works), run:
+In a Claude session with the Google Drive connector (claude.ai/code works), run:
 
 ```
 /newsletter
 ```
 
-Claude sweeps everything posted in #da-internal-newsletters since the last issue (plus any `newsletter`-labeled GitHub issues and `inbox/` files), reads [`VOICE.md`](VOICE.md) and the previous issue for continuity, and writes a full draft to `issues/YYYY-MM.md` — subject line options, preview text, and every section written in the DA voice. Review it, ask for edits in plain English ("make the deal blurb punchier", "lead with the event").
+Claude reads the DA Newsletter Inbox doc in a single call — everything below the last `=== SENT ===` divider is this month's material (plus any `newsletter`-labeled GitHub issues and `inbox/` files). It reads [`VOICE.md`](VOICE.md) and the previous issue for continuity, and writes a full draft to `issues/YYYY-MM.md` — subject line options, preview text, and every section written in the DA voice. Review it, ask for edits in plain English ("make the deal blurb punchier", "lead with the event"). Reading one doc keeps the token cost of a compile minimal — Claude only touches Slack directly if the n8n mirror breaks.
 
 ### 3. Send — into Mailchimp
 
@@ -43,12 +43,9 @@ You can also skip the custom template and paste the section copy into any Mailch
 
 ## Images
 
-Slack-hosted images can't be used in emails — Slack file URLs require login, so they'd render as broken boxes for subscribers. Two ways to get channel images into the newsletter, both fine:
+Images dropped in the channel are auto-saved by n8n to the [DA Newsletter Images](https://drive.google.com/drive/folders/1L4H6cLyZp7YnJyOARMvvObxe1N0U6wFB) Drive folder, with a link logged in the running doc. That solves *saving* them — Slack's free plan expires old files, Drive doesn't.
 
-1. **Mailchimp content studio (simplest).** When assembling the send, download the image from Slack and drag it into Mailchimp — Mailchimp hosts it at a public URL automatically.
-2. **This repo (for images you'll reuse).** Commit to `assets/newsletter/YYYY-MM/` — GitHub Pages serves it at a stable public URL that works in any email. Good for logos and recurring headers.
-
-At compile time, Claude lists which images were posted in the channel and where each should go in the draft, so nothing gets lost.
+For *using* them in the email: Slack and Drive URLs don't work in emails (they require login), so at send time either drag the image from Drive into **Mailchimp's content studio** (Mailchimp hosts it publicly — simplest), or commit reusable ones (logos, headers) to `assets/newsletter/YYYY-MM/` in this repo for a stable GitHub Pages URL. The compiled draft lists every image and where it should go, so nothing gets lost.
 
 ## Directory map
 
