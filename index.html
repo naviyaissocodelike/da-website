@@ -209,6 +209,23 @@
     </div>
   </section>
 
+  <!-- HOW WE WORK -->
+  <section class="band paper2" id="how">
+    <div class="wrap">
+      <div class="shead">
+        <span class="eyebrow">How we work</span>
+        <h2>AI does the grunt work.<br/>People make the calls</h2>
+        <p>We're tool-builders as much as community-builders. Software and AI move the paperwork so our time together goes where it matters: judgment, relationships, and conviction.</p>
+      </div>
+      <div class="three">
+        <div class="card"><div class="k">Diligence</div><h3>AI-assisted diligence</h3><p>Models sift the pipeline, summarize data rooms, and draft memo scaffolds, so the room spends its time asking founders the hard questions</p></div>
+        <div class="card"><div class="k">Pipeline</div><h3>One shared pipeline</h3><p>Every deal lives in a single structured pipeline instead of someone's inbox, and coalition partners see the same picture we do</p></div>
+        <div class="card"><div class="k">Research</div><h3>Research at machine speed</h3><p>Fellows pair AI tooling with expert interviews to publish market reports that would take a fund team months</p></div>
+      </div>
+      <div class="hero-cta" style="margin-top:32px"><a class="btn btn-ink" href="ai-consulting.html">Explore our AI Studio</a></div>
+    </div>
+  </section>
+
   <!-- INVESTORS -->
   <section class="band" id="investors">
     <div class="wrap">
@@ -245,6 +262,14 @@
           </ul>
         </div>
       </div>
+      <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">Your path to a first check</span></div>
+      <div class="steps4" style="margin-bottom:38px">
+        <div class="card"><div class="k">01</div><h3>Join free</h3><p>Tell us about yourself and we'll match you to the right rooms. No track record needed</p></div>
+        <div class="card"><div class="k">02</div><h3>Sit in on a deal room</h3><p>Watch live deals get picked apart and see how the community forms conviction</p></div>
+        <div class="card"><div class="k">03</div><h3>Diligence a deal</h3><p>Dig into a real company alongside our fellows and seasoned angels. Learn by doing</p></div>
+        <div class="card"><div class="k">04</div><h3>Write your first check</h3><p>Invest from $2.5K into a pooled SPV alongside people you've built trust with</p></div>
+      </div>
+      <div class="hero-cta" style="margin-bottom:54px"><a class="btn btn-coral" href="#join">Start with step 01</a></div>
       <div class="split rev compact">
         <div class="dealimg">
           <img src="assets/deal-room.jpg" alt="District Angels deal room" onerror="this.style.display='none';this.parentElement.classList.add('noimg')">
@@ -382,6 +407,19 @@
         <div class="card"><div class="k">Co-host</div><h3>Co-host events with us</h3><p>From deal rooms to demo nights, we co-host across the region and bring the angels</p></div>
         <div class="card"><div class="k">Visibility</div><h3>Reach our audience</h3><p>Get your programs, founders, and brand in front of an engaged room of investors and operators</p></div>
         <div class="card"><div class="k">Deal flow</div><h3>Share deal flow</h3><p>Share your pipeline to reach local angels, and send us companies to look at for regional capital. Clean terms and reciprocity</p></div>
+      </div>
+
+      <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">The coalition</span></div>
+      <div class="card" style="margin-bottom:44px">
+        <div class="k">Angel groups</div>
+        <h3>One region, aligned checkbooks</h3>
+        <p>We're building a coalition of angel groups across the capital region: shared deal flow, co-invested SPVs, and joint deal rooms, so a founder who wins one room can win them all.</p>
+        <ul class="checklist" style="margin-top:16px">
+          <li><span class="ck">/</span> Share deal flow both ways, with clean terms and reciprocity</li>
+          <li><span class="ck">/</span> Co-invest through pooled SPVs of $50K to $200K per deal</li>
+          <li><span class="ck">/</span> Co-host deal rooms, panels, and pitch events across the region</li>
+        </ul>
+        <div class="hero-cta" style="margin-top:24px"><a class="btn btn-coral" href="https://tally.so/r/0QjoDB?source=coalition" target="_blank" rel="noopener">Plug in your group</a></div>
       </div>
 
       <div class="shead" style="margin-bottom:24px"><span class="eyebrow dim" style="color:var(--slate-light)">Working with</span></div>
@@ -531,7 +569,7 @@
   if(rm) return;
 
   // scroll reveal
-  var sel='.shead,.thesis-lede,.prob .p,.three .card,.pf .co,.teamgrid .member,.bubble,.paths .path,.dealimg,.reportlist .report,.cohort,.perks .card,.logos .logo,.stats .s,.split>div';
+  var sel='.shead,.thesis-lede,.prob .p,.three .card,.steps4 .card,.pf .co,.teamgrid .member,.bubble,.paths .path,.dealimg,.reportlist .report,.cohort,.perks .card,.logos .logo,.stats .s,.split>div';
   var els=[].slice.call(document.querySelectorAll(sel));
   var counts={};
   els.forEach(function(el){
