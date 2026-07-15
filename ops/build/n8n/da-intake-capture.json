@@ -1,0 +1,83 @@
+{
+  "name": "DA Intake Capture",
+  "nodes": [
+    {
+      "name": "Tally Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-200, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "da-intake",
+        "options": {}
+      }
+    },
+    {
+      "name": "Normalize Tally fields",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 0],
+      "parameters": {
+        "jsCode": "// Tally sends { data: { fields: [{label, value}, ...] } }\nconst fields = $json.body?.data?.fields || [];\nconst get = (label) => {\n  const f = fields.find(f => (f.label || '').toLowerCase().includes(label));\n  if (!f) return '';\n  return Array.isArray(f.value) ? f.value.join(', ') : (f.value ?? '');\n};\nreturn [{\n  json: {\n    submitted_at: new Date().toISOString(),\n    name: get('name'),\n    email: get('email'),\n    linkedin: get('linkedin'),\n    interest: get('bring') || get('interest') || get('why'),\n    source: 'tally',\n    status: 'new',\n    nudge_count: 0,\n    last_nudged: ''\n  }\n}];"
+      }
+    },
+    {
+      "name": "Append to intake sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [280, -140],
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "id", "value": "INTAKE_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Intake" },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "options": {}
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Slack alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [280, 0],
+      "parameters": {
+        "select": "channel",
+        "channelId": { "__rl": true, "mode": "id", "value": "ALERT_CHANNEL_ID_HERE" },
+        "text": "=🆕 New intake: *{{ $json.name }}* ({{ $json.email }})\n{{ $json.interest }}\nBooking link sent — nudges armed automatically.",
+        "otherOptions": {}
+      }
+    },
+    {
+      "name": "Send welcome + booking email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [280, 140],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "Welcome to District Angels — grab a time",
+        "emailType": "text",
+        "message": "=Hi {{ $json.name.split(' ')[0] }},\n\nThanks for reaching out to District Angels — great to have you.\n\nThe next step is a quick intro call so we can learn what you're looking for and plug you into the right things (deal room, events, community).\n\nGrab any time that works here: BOOKING_URL_HERE\n\nIf nothing fits, just reply to this email.\n\n— Naviya\nDistrict Angels",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Tally Webhook": {
+      "main": [[{ "node": "Normalize Tally fields", "type": "main", "index": 0 }]]
+    },
+    "Normalize Tally fields": {
+      "main": [
+        [
+          { "node": "Append to intake sheet", "type": "main", "index": 0 },
+          { "node": "Slack alert", "type": "main", "index": 0 },
+          { "node": "Send welcome + booking email", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}
