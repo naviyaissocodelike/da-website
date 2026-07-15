@@ -171,6 +171,26 @@ flowchart TD
   B -.->|"weekly nudge to #deals:<br/>open items per deal"| C
 ```
 
+### The 2-page memo — diligence has a shape, not a vibe
+
+Every deal in diligence gets the **same fixed 2-page memo**, designed once with our expectations baked in. The memo's sections are the diligence checklist: each section becomes an open item the moment a deal enters diligence, and the deal **cannot move to IC vote until every section is filled or explicitly waived** — the nudge bot prompts the deal lead on empty sections.
+
+| Page | Section | What must be in it |
+| --- | --- | --- |
+| 1 | Snapshot | One-liner, sector, stage, raise, instrument & valuation, round composition (who's in, who's leading) |
+| 1 | Team | Founder backgrounds, why-them, min. 2 reference calls, red flags checked |
+| 1 | Market & product | Problem, honestly-framed market size, competition, traction with **verified** metrics — not deck metrics |
+| 1 | Why DA, why now | What our network specifically adds; what breaks if we pass |
+| 2 | **Financial diligence** | Our weakest muscle, so the most prescribed: revenue quality (verified MRR/contracts, not pipeline), monthly burn & runway in months, unit economics (CAC/LTV or honest proxy), cap table reviewed line by line, use of funds. Pre-revenue: bank balance + spend plan instead. |
+| 2 | **Terms** | Instrument (SAFE / note / priced), cap & discount, pro-rata rights for the SPV, information rights, board composition, liquidation preference, MFN |
+| 2 | **Dilution math** | Our modeled ownership at conversion and through the next two rounds, including option-pool expansion — the number members actually own, not the number on the SAFE |
+| 2 | Risks & open questions | Top 3–5 risks with the founder's answers; unresolved items flagged as such |
+| 2 | Recommendation | Expert verdicts, deal-lead rubric score, IC recommendation |
+
+- **Drafted by the agent, owned by a human:** the memo skeleton auto-fills from the founder form, transcripts, and expert notes — the deal lead verifies and completes, never starts from blank.
+- **Terms watch-list (auto-flagged):** uncapped or high-cap notes, stacked SAFEs (aggregate dilution across instruments), MFN clauses, participating preferred, full-ratchet anti-dilution, option-pool shuffle pushed into the pre-money, side letters granting others super pro-rata. Any hit gets its own line in Risks.
+- **Financial diligence hard gate:** no IC vote without verified revenue (or bank-verified runway if pre-revenue) and the dilution model filled in.
+
 ### Member engagement per deal
 
 - **Interest marking:** every deal email and portal page carries four buttons — *Committed / Interested / Watching / Pass* — one click writes to the Brain. Pass asks one optional question: why?
@@ -178,6 +198,27 @@ flowchart TD
 - **Right-time engagement:** members are pinged per deal exactly three times — deal room invite, diligence summary + interest ask, SPV open. Interested members get more; everyone else isn't spammed.
 - **SPV flow:** committed interest crosses threshold → spin up SPV (Sydecar/AngelList) → Brain tracks doc status per member with unsigned-doc nudges.
 - **Referral tracking:** every deal and intro records *referred-by* → quarterly intro-impact report — the dataset cohost and embassy conversations have been missing.
+
+### After the wire — the portfolio loop
+
+Today a closed deal goes quiet. Target: a standing rhythm where founders report on a schedule, their asks get matched against the network automatically, and the benefits we kick back — introductions and ecosystem perks — are **tracked in the same intros ledger**, so "what has DA done for you" is a report, not a recollection.
+
+```mermaid
+flowchart LR
+  A["Quarterly founder update<br/>short form: revenue, burn,<br/>runway, headcount, highlights,<br/>top 3 asks"] -->|"auto-reminded<br/>until submitted"| B["Parsed into the Brain:<br/>portfolio record updated"]
+  B --> C["Asks matched against Brain tags:<br/>customers, hires, follow-on<br/>investors, experts"]
+  C -->|"intro drafts<br/>we approve"| D["Introductions made —<br/>every one logged in the<br/>intros ledger with outcome"]
+  B --> E["Ecosystem perks scheduled:<br/>deal-room demo slot, newsletter<br/>+ LinkedIn feature, expert office<br/>hours, embassy + gov connects"]
+  B --> F["Member digest:<br/>portfolio highlights in the<br/>monthly newsletter"]
+  B -->|"runway < 6 months or<br/>2 missed updates"| G["⚠ Flagged to #deals —<br/>partner reaches out"]
+  D --> H["Quarterly impact report<br/>per company: intros made,<br/>outcomes, perks delivered"]
+  E --> H
+```
+
+- **Founder check-in cadence:** quarterly structured update (5-minute form — metrics + highlights + asks), annual deeper review call, always-open channel for urgent asks. Reminders automatic; two missed updates escalates to a human.
+- **Benefits we owe back, made concrete:** tracked introductions matched from the Brain (potential customers, key hires, downstream investors, experts) plus ecosystem perks — a demo slot at a deal room, newsletter and LinkedIn features, expert office hours, embassy/government connections once activated. Each perk is a checklist item with a date, like sponsor deliverables.
+- **The impact ledger closes the loop:** intros and perks land in the same intros table as everything else, so the quarterly report shows each founder exactly what DA delivered — also our strongest recruiting collateral for the next founder.
+- **Members see it too:** portfolio highlights feed the newsletter automatically, and members who invested in a deal get its updates — one more reason the Member tier is worth paying for.
 
 ---
 

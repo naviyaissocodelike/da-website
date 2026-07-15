@@ -60,7 +60,30 @@ create table deals (
   referred_by   uuid references people(id),
   pass_reason   text,
   ic_decision   text,                              -- ok | not_ok | more_info
-  ic_notes      text
+  ic_notes      text,
+  -- terms & dilution (page 2 of the memo)
+  instrument    text,                              -- safe | note | priced
+  valuation_cap numeric,
+  discount_pct  numeric,
+  pro_rata      boolean,
+  info_rights   boolean,
+  terms_flags   text[] not null default '{}',      -- uncapped_note | stacked_safes | mfn | participating_preferred | full_ratchet | pool_shuffle | super_pro_rata
+  ownership_at_conversion numeric,                 -- modeled %, incl. pool expansion
+  ownership_after_two_rounds numeric
+);
+
+-- the fixed 2-page memo: one row per section per deal; created automatically
+-- when a deal enters diligence. Deal cannot reach ic_vote while any row is
+-- 'open' (the nudge bot prompts on these).
+create table memo_sections (
+  id            uuid primary key default gen_random_uuid(),
+  deal_id       uuid not null references deals(id) on delete cascade,
+  section       text not null,                     -- snapshot | team | market_product | why_da | financial_diligence | terms | dilution_math | risks | recommendation
+  content       text,
+  status        text not null default 'open',      -- open | filled | waived
+  waived_reason text,
+  updated_at    timestamptz not null default now(),
+  unique (deal_id, section)
 );
 
 -- per-deal open questions collected from members
@@ -140,6 +163,45 @@ create table intros (
   deal_id       uuid references deals(id),
   context       text,
   outcome       text                               -- meeting | investment | partnership | nothing_yet
+);
+
+-- ---------- PORTFOLIO (post-investment loop) ----------
+create table portfolio_updates (
+  id            uuid primary key default gen_random_uuid(),
+  created_at    timestamptz not null default now(),
+  deal_id       uuid not null references deals(id),
+  period        text not null,                     -- e.g. '2026-Q3'
+  revenue       numeric,
+  burn          numeric,
+  runway_months numeric,
+  headcount     int,
+  highlights    text,
+  lowlights     text,
+  submitted_by  uuid references people(id),
+  flagged       boolean not null default false,    -- runway < 6mo or 2 missed updates
+  unique (deal_id, period)
+);
+
+-- founder asks, extracted from each update; matched to people/orgs by tag
+create table founder_asks (
+  id            uuid primary key default gen_random_uuid(),
+  created_at    timestamptz not null default now(),
+  update_id     uuid references portfolio_updates(id) on delete cascade,
+  deal_id       uuid not null references deals(id),
+  ask           text not null,                     -- 'intro to DoD buyers', 'senior BE hire', 'series A leads'
+  kind          text,                              -- customer | hire | investor | expert | other
+  status        text not null default 'open',      -- open | matched | delivered | dropped
+  intro_id      uuid references intros(id)         -- the intro that answered it
+);
+
+-- ecosystem perks owed to portfolio founders (mirrors sponsor_deliverables)
+create table portfolio_perks (
+  id            uuid primary key default gen_random_uuid(),
+  deal_id       uuid not null references deals(id),
+  perk          text not null,                     -- 'deal room demo slot', 'newsletter feature', 'expert office hours', 'embassy connect'
+  due_date      date,
+  delivered     boolean not null default false,
+  proof_url     text
 );
 
 -- ---------- OPEN ITEMS (tasks extracted from Slack + calls + checklists) ----------
