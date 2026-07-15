@@ -1,0 +1,131 @@
+{
+  "name": "DA Brain Capture",
+  "nodes": [
+    {
+      "name": "Slack Trigger (#da-brain)",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [-200, 0],
+      "parameters": {
+        "trigger": ["message"],
+        "channelId": { "__rl": true, "mode": "id", "value": "DA_BRAIN_CHANNEL_ID_HERE" },
+        "options": { "resolveIds": true }
+      }
+    },
+    {
+      "name": "Skip system & bot messages",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [40, 0],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.subtype }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty" }
+            },
+            {
+              "leftValue": "={{ $json.bot_id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty" }
+            },
+            {
+              "leftValue": "={{ $json.thread_ts }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claude: parse into contact update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [280, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'claude-opus-4-8',\n  max_tokens: 2048,\n  system: 'You maintain the contact database for District Angels, a DC-area angel investing community. You receive a free-text note about one or more people, written informally by a team member. Extract a structured contact update for EACH person mentioned. Infer tags conservatively - only what the text supports. types values: angel, founder, operator, expert, sponsor, volunteer, embassy, friend. Leave fields empty rather than guessing.',\n  output_config: { format: { type: 'json_schema', schema: {\n    type: 'object',\n    properties: {\n      contacts: { type: 'array', items: {\n        type: 'object',\n        properties: {\n          full_name: { type: 'string' },\n          email: { type: 'string' },\n          linkedin_url: { type: 'string' },\n          city: { type: 'string' },\n          types: { type: 'array', items: { type: 'string' } },\n          sectors: { type: 'array', items: { type: 'string' } },\n          stages: { type: 'array', items: { type: 'string' } },\n          check_size: { type: 'string' },\n          offers: { type: 'array', items: { type: 'string' } },\n          notes: { type: 'string' }\n        },\n        required: ['full_name','email','linkedin_url','city','types','sectors','stages','check_size','offers','notes'],\n        additionalProperties: false\n      }}\n    },\n    required: ['contacts'],\n    additionalProperties: false\n  }}},\n  messages: [{ role: 'user', content: $json.text }]\n}) }}",
+        "options": {}
+      }
+    },
+    {
+      "name": "Split contacts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0],
+      "parameters": {
+        "jsCode": "const slack = $('Skip system & bot messages').first().json;\nconst textBlock = $json.content.find(b => b.type === 'text');\nconst parsed = JSON.parse(textBlock.text);\nreturn parsed.contacts.map(c => ({ json: {\n  slack_ts: slack.ts,\n  raw_text: slack.text,\n  status: 'pending',\n  full_name: c.full_name,\n  email: c.email,\n  linkedin_url: c.linkedin_url,\n  city: c.city,\n  types: (c.types || []).join(', '),\n  sectors: (c.sectors || []).join(', '),\n  stages: (c.stages || []).join(', '),\n  check_size: c.check_size,\n  offers: (c.offers || []).join(', '),\n  notes: c.notes\n}}));"
+      }
+    },
+    {
+      "name": "Log to Pending tab",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [760, -100],
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "id", "value": "BRAIN_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Pending" },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "options": {}
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Propose in thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [760, 100],
+      "parameters": {
+        "select": "channel",
+        "channelId": { "__rl": true, "mode": "id", "value": "DA_BRAIN_CHANNEL_ID_HERE" },
+        "text": "=📇 *{{ $json.full_name }}*{{ $json.email ? ' · ' + $json.email : '' }}{{ $json.city ? ' · ' + $json.city : '' }}\n• Type: {{ $json.types || '—' }}\n• Sectors: {{ $json.sectors || '—' }}  · Stages: {{ $json.stages || '—' }}\n• Check size: {{ $json.check_size || '—' }}  · Offers: {{ $json.offers || '—' }}\n• Notes: {{ $json.notes || '—' }}\n\n_React ✅ on your original message to commit this to the Brain._",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.slack_ts }}"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger (#da-brain)": {
+      "main": [[{ "node": "Skip system & bot messages", "type": "main", "index": 0 }]]
+    },
+    "Skip system & bot messages": {
+      "main": [[{ "node": "Claude: parse into contact update", "type": "main", "index": 0 }]]
+    },
+    "Claude: parse into contact update": {
+      "main": [[{ "node": "Split contacts", "type": "main", "index": 0 }]]
+    },
+    "Split contacts": {
+      "main": [
+        [
+          { "node": "Log to Pending tab", "type": "main", "index": 0 },
+          { "node": "Propose in thread", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

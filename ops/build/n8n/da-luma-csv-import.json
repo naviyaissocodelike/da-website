@@ -1,0 +1,121 @@
+{
+  "name": "DA Luma CSV Import",
+  "nodes": [
+    {
+      "name": "Watch Luma Imports folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [-200, 0],
+      "parameters": {
+        "event": "fileCreated",
+        "triggerOn": "specificFolder",
+        "folderToWatch": { "__rl": true, "mode": "id", "value": "LUMA_IMPORTS_FOLDER_ID_HERE" },
+        "options": {}
+      }
+    },
+    {
+      "name": "Download CSV",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [40, 0],
+      "parameters": {
+        "operation": "download",
+        "fileId": { "__rl": true, "mode": "id", "value": "={{ $json.id }}" },
+        "options": {}
+      }
+    },
+    {
+      "name": "Parse CSV",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [280, 0],
+      "parameters": {
+        "operation": "csv",
+        "options": {}
+      }
+    },
+    {
+      "name": "Normalize guest rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 0],
+      "parameters": {
+        "jsCode": "// Luma guest exports vary slightly; map common column names flexibly.\n// Name the file '<event name> YYYY-MM-DD.csv' when you drop it in —\n// the filename becomes the event label on every row.\nconst fileName = $('Watch Luma Imports folder').first().json.name || 'unknown event';\nconst eventLabel = fileName.replace(/\\.csv$/i, '').trim();\nconst pick = (row, keys) => {\n  for (const k of Object.keys(row)) {\n    const norm = k.toLowerCase().replace(/[^a-z]/g, '');\n    if (keys.includes(norm)) return String(row[k] ?? '').trim();\n  }\n  return '';\n};\nconst out = [];\nfor (const item of $input.all()) {\n  const r = item.json;\n  const email = pick(r, ['email', 'emailaddress']).toLowerCase();\n  if (!email) continue;\n  const first = pick(r, ['firstname']);\n  const last = pick(r, ['lastname']);\n  const name = pick(r, ['name', 'fullname']) || `${first} ${last}`.trim();\n  const checkedIn = pick(r, ['checkedinat', 'checkedin', 'attended']);\n  const approval = pick(r, ['approvalstatus', 'status']);\n  out.push({ json: {\n    event: eventLabel,\n    full_name: name,\n    email,\n    attended: checkedIn ? 'yes' : '',\n    approval_status: approval,\n    source: 'luma',\n    imported_at: new Date().toISOString()\n  }});\n}\nreturn out;"
+      }
+    },
+    {
+      "name": "Upsert into People tab",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [760, -100],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "mode": "id", "value": "BRAIN_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "People" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": ["email"],
+          "value": {
+            "email": "={{ $json.email }}",
+            "full_name": "={{ $json.full_name }}",
+            "source": "luma",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "options": {}
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Log attendance rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [760, 100],
+      "parameters": {
+        "operation": "append",
+        "documentId": { "__rl": true, "mode": "id", "value": "BRAIN_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Attendance" },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "options": {}
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Slack summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1000, 0],
+      "parameters": {
+        "select": "channel",
+        "channelId": { "__rl": true, "mode": "id", "value": "ALERT_CHANNEL_ID_HERE" },
+        "text": "=📥 Imported *{{ $('Normalize guest rows').all().length }}* guests from `{{ $('Watch Luma Imports folder').first().json.name }}` into the Brain — new contacts upserted, attendance logged.",
+        "otherOptions": {}
+      }
+    }
+  ],
+  "connections": {
+    "Watch Luma Imports folder": {
+      "main": [[{ "node": "Download CSV", "type": "main", "index": 0 }]]
+    },
+    "Download CSV": {
+      "main": [[{ "node": "Parse CSV", "type": "main", "index": 0 }]]
+    },
+    "Parse CSV": {
+      "main": [[{ "node": "Normalize guest rows", "type": "main", "index": 0 }]]
+    },
+    "Normalize guest rows": {
+      "main": [
+        [
+          { "node": "Upsert into People tab", "type": "main", "index": 0 },
+          { "node": "Log attendance rows", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Log attendance rows": {
+      "main": [[{ "node": "Slack summary", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

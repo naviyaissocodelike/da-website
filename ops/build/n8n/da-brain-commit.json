@@ -1,0 +1,164 @@
+{
+  "name": "DA Brain Commit",
+  "nodes": [
+    {
+      "name": "Slack Trigger (reactions)",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [-200, 0],
+      "parameters": {
+        "trigger": ["reaction_added"],
+        "channelId": { "__rl": true, "mode": "id", "value": "DA_BRAIN_CHANNEL_ID_HERE" },
+        "options": { "resolveIds": true }
+      }
+    },
+    {
+      "name": "Only ✅ reactions",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [40, 0],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.reaction }}",
+              "rightValue": "white_check_mark",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Find pending rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [280, 0],
+      "parameters": {
+        "operation": "read",
+        "documentId": { "__rl": true, "mode": "id", "value": "BRAIN_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Pending" },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "slack_ts",
+              "lookupValue": "={{ $json.item.ts }}"
+            }
+          ]
+        },
+        "options": { "returnAllMatches": "returnAllMatches" }
+      }
+    },
+    {
+      "name": "Still pending?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [520, 0],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "pending",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Write to People tab",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [760, -100],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "mode": "id", "value": "BRAIN_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "People" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": ["full_name"],
+          "value": {
+            "full_name": "={{ $json.full_name }}",
+            "email": "={{ $json.email }}",
+            "linkedin_url": "={{ $json.linkedin_url }}",
+            "city": "={{ $json.city }}",
+            "types": "={{ $json.types }}",
+            "sectors": "={{ $json.sectors }}",
+            "stages": "={{ $json.stages }}",
+            "check_size": "={{ $json.check_size }}",
+            "offers": "={{ $json.offers }}",
+            "notes": "={{ $json.notes }}",
+            "updated_at": "={{ $now.toISO() }}"
+          },
+          "options": {}
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Mark committed",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [760, 100],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "mode": "id", "value": "BRAIN_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Pending" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": ["slack_ts"],
+          "value": {
+            "slack_ts": "={{ $json.slack_ts }}",
+            "status": "committed"
+          },
+          "options": {}
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Confirm in thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1000, 0],
+      "parameters": {
+        "select": "channel",
+        "channelId": { "__rl": true, "mode": "id", "value": "DA_BRAIN_CHANNEL_ID_HERE" },
+        "text": "=✅ Committed *{{ $json.full_name }}* to the Brain.",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.slack_ts }}"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger (reactions)": {
+      "main": [[{ "node": "Only ✅ reactions", "type": "main", "index": 0 }]]
+    },
+    "Only ✅ reactions": {
+      "main": [[{ "node": "Find pending rows", "type": "main", "index": 0 }]]
+    },
+    "Find pending rows": {
+      "main": [[{ "node": "Still pending?", "type": "main", "index": 0 }]]
+    },
+    "Still pending?": {
+      "main": [[{ "node": "Write to People tab", "type": "main", "index": 0 }]]
+    },
+    "Write to People tab": {
+      "main": [[{ "node": "Mark committed", "type": "main", "index": 0 }]]
+    },
+    "Mark committed": {
+      "main": [[{ "node": "Confirm in thread", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

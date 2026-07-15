@@ -1,0 +1,90 @@
+{
+  "name": "DA Intake Nudges",
+  "nodes": [
+    {
+      "name": "Every day 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-200, 0],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "days", "triggerAtHour": 9 }]
+        }
+      }
+    },
+    {
+      "name": "Read intake sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [40, 0],
+      "parameters": {
+        "operation": "read",
+        "documentId": { "__rl": true, "mode": "id", "value": "INTAKE_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Intake" },
+        "options": {}
+      }
+    },
+    {
+      "name": "Who needs a nudge?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, 0],
+      "parameters": {
+        "jsCode": "// Nudge day 2, day 5, day 10 after submission. After 3 nudges → dormant.\nconst now = Date.now();\nconst DAY = 24 * 60 * 60 * 1000;\nconst schedule = [2, 5, 10]; // days after submission\nconst out = [];\nfor (const item of $input.all()) {\n  const r = item.json;\n  if (r.status !== 'new' || !r.email) continue;\n  const nudges = Number(r.nudge_count || 0);\n  if (nudges >= 3) continue;\n  const submitted = new Date(r.submitted_at).getTime();\n  if (!submitted) continue;\n  const dueAt = submitted + schedule[nudges] * DAY;\n  if (now >= dueAt) {\n    out.push({ json: { ...r, nudge_count: nudges, next_nudge: nudges + 1, goes_dormant: nudges + 1 >= 3 } });\n  }\n}\nreturn out;"
+      }
+    },
+    {
+      "name": "Send nudge email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [520, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.next_nudge === 1 ? 'Quick nudge — grab a time with District Angels' : $json.next_nudge === 2 ? 'Still want to chat? Takes one click' : 'Last one from us — we\\u2019ll keep you posted either way' }}",
+        "emailType": "text",
+        "message": "=Hi {{ ($json.name || '').split(' ')[0] }},\n\n{{ $json.next_nudge === 1 ? 'Just making sure this didn\\u2019t get buried — here\\u2019s the link to grab an intro call time:' : $json.next_nudge === 2 ? 'Life gets busy — the booking link is one click if you\\u2019re still interested in plugging into District Angels:' : 'No worries if the timing isn\\u2019t right. We\\u2019ll add you to our monthly newsletter so you can see what we\\u2019re up to, and the door is open whenever you want that intro call:' }}\n\nBOOKING_URL_HERE\n\n— Naviya\nDistrict Angels",
+        "options": {}
+      }
+    },
+    {
+      "name": "Update nudge count",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [760, 0],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "mode": "id", "value": "INTAKE_SHEET_ID_HERE" },
+        "sheetName": { "__rl": true, "mode": "name", "value": "Intake" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": ["email"],
+          "value": {
+            "email": "={{ $json.email }}",
+            "nudge_count": "={{ $json.next_nudge }}",
+            "last_nudged": "={{ $now.toISO() }}",
+            "status": "={{ $json.goes_dormant ? 'dormant' : 'new' }}"
+          },
+          "options": {}
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Every day 9am": {
+      "main": [[{ "node": "Read intake sheet", "type": "main", "index": 0 }]]
+    },
+    "Read intake sheet": {
+      "main": [[{ "node": "Who needs a nudge?", "type": "main", "index": 0 }]]
+    },
+    "Who needs a nudge?": {
+      "main": [[{ "node": "Send nudge email", "type": "main", "index": 0 }]]
+    },
+    "Send nudge email": {
+      "main": [[{ "node": "Update nudge count", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}
