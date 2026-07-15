@@ -44,6 +44,16 @@ Companion to [`../OPERATING-SYSTEM.md`](../OPERATING-SYSTEM.md). That doc is the
 | Post-event automation | T+1 recap + thanks drafts, attendance sync, tagging | 🔧 | Luma sync first |
 | Sponsor reminders | Pre-event benefit checklist to #ops, post-event proof recap | 🔧 | sponsorships table populated |
 
+### Revenue & growth
+
+| Component | What it does | Status | Needs |
+|---|---|---|---|
+| Outreach pipeline | One tracker for all cold/warm outreach (sponsors, angels, founders, partners, grant-makers): agent-drafted personalized emails, Slack approval, Gmail reply detection flips stages, day-4/9 follow-ups, weekly digest | 🔧 | n8n Gmail watch; `outreach` table in schema (works on a sheet first) |
+| Points ledger | Incentive engine — auto-derived from Brain events (deals brought, referrals, connects, deal feedback, attendance); fee waivers + exclusive invites at renewal | 📦 schema (`points_ledger` + balance view) | Supabase live |
+| Grants pipeline | Econ-dev grants tracked like deals (identified → LOI → application → awarded → reporting); quarterly Ecosystem Impact Report auto-drafted from Brain metrics | 🔧 | `grants` table ready; target funder list |
+| Sponsor packages + event P&L | Category-exclusive annual partners; per-event cash + in-kind fair value − cost → cost per activated angel | 📦 schema fields | Populate per event |
+| Happy-hour curation | Rule-of-thirds invite list proposed by agent from engagement scores | 🔧 | Luma sync (engagement scores) |
+
 ### Deals & investment
 
 | Component | What it does | Status | Needs |

@@ -222,11 +222,112 @@ flowchart LR
 
 ---
 
-## 05 · Events & the content engine
+## 05 · Monetization — five streams, one data spine
 
-Cadence stops being memory-dependent: the calendar owns it. Every event auto-creates its own T-minus checklist, and one description fans out into every channel in DA's voice.
+Revenue comes from the ecosystem we serve — sponsors who want our rooms, grant-makers who want our activation numbers, members who want the access. Every stream is justified by the **same Brain data**: the metrics that win a grant are the metrics that renew a sponsor are the metrics that convince a member the fee is worth it.
 
-**Fixed cadence:** Virtual Deal Room — second Wednesday monthly · Member-only activation — quarterly · Newsletter — last Thursday monthly.
+| Stream | Shape |
+| --- | --- |
+| **1 · Membership fees** | The recurring floor: Member ~$500/yr, Charter $1.5–2.5k/yr. Waivable through contribution (incentive engine below) — engagement first, money second. |
+| **2 · Event sponsorships** | The biggest near-term lever: category-exclusive annual partners + à-la-carte event slots, sold against the sponsor map. In-kind tracked at fair value. |
+| **3 · Economic development grants** | DA activates new angel investors and supports regional founders — exactly what econ-dev money funds. Won with data the Brain already produces. |
+| **4 · In-kind perks** | Venue (The Ned's), F&B, legal/accounting office hours, design, AV — cuts the cost base; every in-kind deal is a sponsorship record with a fair value. |
+| **Horizon** | SPV admin fee + carry, paid zero-to-first-check bootcamp (tuition + econ-dev subsidy), partner/B2B tooling for other angel groups. |
+
+### The sponsor map — who buys what
+
+Sell rooms, not logos. Three annual-partner slots with **category exclusivity** (one law firm, one bank, one accounting group) is the premium product; everything else is per-event.
+
+| Sponsor | What they're actually buying | Where they fit | Deal shape |
+| --- | --- | --- | --- |
+| Law firms (emerging-companies) | Founder & deal flow, diligence credibility | Deal room "presented by", diligence workshops, founder office hours | Annual $ + in-kind office hours |
+| Banks & private wealth | A curated room of accredited HNW angels | Happy hours, member dinners, gala | Annual $$ — the happy hour is their target room |
+| Accounting / CFO groups | Founder clients + angel credibility | Financial-diligence workshop — they sponsor *and teach* | Annual $ + in-kind |
+| Economic development orgs | Activation metrics for their region | Battle of the Regions, bootcamps, impact report | Grants + underwriting |
+| Corporations & primes | Innovation scouting, founder-brand halo | Title sponsor of flagships | $$$ title |
+| Not yet considered | Universities/TTOs, SPV & fund-admin platforms, recruiters, venues, media | À la carte per event | $ / in-kind |
+
+### Grants — won with data, reported by query
+
+- **North star: new investors activated** (first checks by people who weren't angels before DA), plus capital deployed regionally, founders served, jobs at portfolio companies (headcount already in portfolio updates).
+- **Grant pipeline runs like the deal pipeline:** identified → LOI → application → awarded → reporting, deadlines as open items. Targets: DC/MD/VA EDAs, chambers, SBA ecosystem programs, EDA Build-to-Scale, foundations funding capital access.
+- **Quarterly Ecosystem Impact Report** auto-drafts from the Brain — one artifact serves grant reports, sponsor renewals, and embassy conversations.
+
+### The incentive engine — points as the aligned currency
+
+Fees are a floor; the point is behavior. **Nothing is self-reported** — every earning action already lands in the Brain, so the ledger is derived automatically.
+
+| Action | Points |
+| --- | --- |
+| Bring a deal DA invests in | **Fee waived** next year + gala recognition |
+| Bring a deal that passes screening | 50 |
+| Refer a member who joins | 100 (3 referrals ≈ a waiver) |
+| Strategic connect that converts (sponsor, cohost, embassy, grant) | 150 |
+| Expert call or memo-grade deal feedback | 25 (bonus points + exclusive-event invites) |
+| Interest marking with written pass-reason | 5 |
+| Speak / host / teach | 25 |
+| Attend | 5 |
+
+Redemptions: **500 pts = annual fee waived** · 250 pts = exclusive salon/dinner invite · top quartile = priority SPV allocation · top decile = Charter invitation + gala awards (Most Active, Best Mentor, Breakout Investor). Points expire after 24 months; ledger private, recognition public; waiver eligibility auto-flags at renewal.
+
+### The outreach engine — cold, warm, and tracked
+
+Sponsors, grant-makers, founders, investors, partners, angels — one pipeline handles all proactive outreach; only the target list and pitch template differ per campaign.
+
+```mermaid
+flowchart LR
+  A["Campaign: persona +<br/>target list"] --> B["Warm-first check:<br/>Brain searched for an existing<br/>connection or referrer"]
+  B -->|"warm"| C["Intro via member<br/>(earns connect points)"]
+  B -->|"cold"| D["Agent drafts personalized email<br/>from Brain tags + DA voice"]
+  D -->|"approved in Slack"| E["Sent from DA email,<br/>logged with thread ID"]
+  E --> F["n8n watches Gmail:<br/>any reply flips the stage<br/>+ alerts Slack"]
+  E -->|"no reply day 4 / 9"| G["Follow-ups 2 and 3,<br/>then closed 'no response'"]
+  F --> H["replied → meeting → converted"]
+  H --> I["Weekly digest per campaign:<br/>sent / replied / meetings / won"]
+```
+
+- **One pipeline, many campaigns:** each target is a row — persona, campaign, stage (identified → researched → contacted → replied → meeting → converted/closed), owner, next-touch date.
+- **Warm-first rule:** before any cold send, check the Brain for a path — warm intros convert several times better and give members connect points.
+- **Personalized, never mail-merged:** drafted from what we know about them; batch-approved in Slack.
+- **Response tracking is automatic:** Gmail thread IDs logged at send; replies flip the stage — no manual "did they answer?". Exactly two follow-ups (day 4, day 9), then close. Reply rate per template tracked so pitches improve.
+- **LinkedIn lane** for email-averse targets, logged via #da-brain.
+
+---
+
+## 06 · Events — the ladder, the calendar, the money
+
+Every event has exactly **one job in the funnel, one curation rule, and one monetization mode** — an event that can't name all three doesn't run. Public events acquire, invite-only rooms convert, member-only rooms retain. Cadence is owned by the calendar, never memory.
+
+### The event portfolio
+
+| Event | Cadence | Job in the funnel | Curation | Monetization |
+| --- | --- | --- | --- | --- |
+| **Virtual Deal Room** *(live)* | Monthly, 2nd Wed | Showcase companies; deal engagement; top-of-funnel | Open reg; founders vetted via screen | Law-firm annual "presented by" |
+| **Angel Happy Hour** | Bimonthly, invite-only | **The conversion room** — prospects → members, members → advocates; deals pre-sold on relationships formed here | Rule of thirds, cap 30–40 (below) | Bank/private-wealth sponsor + venue in-kind |
+| **Battle of the Regions** *(live)* | Annual flagship | Acquisition at scale; the econ-dev magnet — a regional competition *is* a regional-development story | Public + curated VIP/judge track | Corporate title + econ-dev underwriting per region; embassies later |
+| **Salons** | Quarterly, cohosted | Depth on one theme; audience exchange | 15–20, Chatham House; **partner brings half the room** | Sponsor covers dinner; pipeline event |
+| **Member dinners at The Ned's** | Quarterly | The paid-tier benefit; retention | Members/Charter + occasional top prospect | It *is* the monetization; venue partnership |
+| **Financial diligence workshop** *(new)* | Quarterly | Fixes our weakest muscle; grant-fundable education | Members + serious prospects | Accounting/CFO group sponsors *and teaches* |
+| **Angel 101 bootcamp** *(new)* | 2 cohorts/yr | North-star machine: new investors activated | Applications | Tuition + econ-dev subsidy |
+| **Annual gala + awards** *(new)* | Annual | Recognition engine + portfolio showcase | Community-wide; awards from points ledger | Biggest sponsor moment + tables |
+
+### The angel happy hour — purpose and curation
+
+- **Purpose is conversion, measured as such:** share of attendees who become members or mark first deal interest within 60 days. It's the trust layer that makes deal-room commitments happen.
+- **Rule of thirds:** ⅓ anchor members (highest engagement — they set the tone), ⅓ hottest prospects (from intake, by engagement score and check size), ⅓ member-brought guests (one each, accredited or strategic — earns referral points). Cap 30–40.
+- **Composition rules:** no pitching (founders only as portfolio guests); sector mix enforced; repeat non-converting prospects rotate out after two invites.
+- **Curation is a query:** agent proposes the invite list from the Brain, human approves, private Luma event sends.
+
+### Event economics — tracking that justifies every dollar
+
+- **Per-event P&L:** sponsor cash + in-kind fair value − costs → *cost per new member* and *cost per activated angel*. The number that decides which events live, die, or scale.
+- **60-day conversion attribution** via Luma-synced attendance: "attended happy hour → joined" and "attended deal room → first commitment" are standing queries.
+- **Sponsor ROI recap auto-compiles** per event (attendance, angel/founder split, mentions, photos, leads) → renewal deck writes itself; same numbers feed the grant report.
+- **Points accrue automatically** from attendance, hosting, speaking, guest-bringing.
+
+### Content & cadence machinery
+
+Every event auto-creates its own T-minus checklist, and one description fans out into every channel in DA's voice. Newsletter: last Thursday monthly, auto-assembled.
 
 ### The T-minus checklist — created automatically per event
 
@@ -260,7 +361,7 @@ The month's raw material already lives in the Brain — deals moved, events held
 
 ---
 
-## 06 · Communications — who hears what, where
+## 07 · Communications — who hears what, where
 
 The rule that fixes the flood: **Slack is a notification surface, never a storage layer.** Everything actionable becomes an open item in the Brain with an owner and a date; the bot replays what's open twice a week.
 
@@ -277,7 +378,7 @@ Open items enter the Brain automatically from three directions: transcript actio
 
 ---
 
-## 07 · Sponsors, in-kind supporters, volunteers, embassies
+## 08 · Sponsors, in-kind supporters, volunteers, embassies
 
 ### Sponsors — commitments that keep themselves
 
@@ -306,7 +407,7 @@ Not yet activated, and the system is built for it: embassies enter the Brain as 
 
 ---
 
-## 08 · The weekly rhythm — MD updates without the chase
+## 09 · The weekly rhythm — MD updates without the chase
 
 Today: volunteers fill a sheet, Naviya and Blaire pull bullets from it, walk through it Wednesday. Target: the week reports itself; humans edit and decide.
 
@@ -334,7 +435,7 @@ flowchart LR
 
 ---
 
-## 09 · The stack — keep what works, add the glue
+## 10 · The stack — keep what works, add the glue
 
 | Layer | Tool | Status | Role |
 | --- | --- | --- | --- |
@@ -352,7 +453,7 @@ flowchart LR
 
 ---
 
-## 10 · Roadmap — four phases, each one self-funding
+## 11 · Roadmap — four phases, each one self-funding
 
 Ordered by leverage: stop losing leads first, build the Brain second, automate the engines third, launch the compounding programs fourth. Each phase works even if the next never ships.
 
@@ -373,6 +474,7 @@ Ordered by leverage: stop losing leads first, build the Brain second, automate t
 - Diligence automation: auto checklists, expert matching, question synthesis, memo drafts
 - Content engine (description → LinkedIn + Luma + email) with Slack approval
 - T-minus event checklists, post-event recap/thanks automation, sponsor tracker + reminders
+- Sponsor map goes to market: annual-partner packages pitched; outreach pipeline live with automatic reply tracking
 - MD brief auto-drafted Mondays; newsletter restarts on the monthly cadence
 
 ### Phase 3 — Compounding (quarter 2)
@@ -381,6 +483,7 @@ Ordered by leverage: stop losing leads first, build the Brain second, automate t
 - SPV interest → threshold → spin-up flow with doc-status nudges
 - Member matching survey + monthly pairings; volunteer program v1 with benefits
 - Referral / intro tracking with the quarterly impact report
+- Points engine live (auto-derived ledger, fee waivers at renewal); first grant applications backed by the impact dashboard; gala + bootcamp planned
 
 ### Phase 4 — Horizon (later)
 - Embassy activation: foreign-national audiences as a Community segment, embassy dinners at Charter tier

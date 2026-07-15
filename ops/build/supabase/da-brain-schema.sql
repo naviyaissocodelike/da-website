@@ -122,7 +122,12 @@ create table events (
   luma_event_id text unique,                       -- for the nightly sync upsert
   cohost_org_id uuid references orgs(id),
   recap_sent    boolean not null default false,
-  thanks_sent   boolean not null default false
+  thanks_sent   boolean not null default false,
+  -- event economics: P&L per event → cost per new member / activated angel
+  capacity      int,
+  cost          numeric,
+  sponsor_cash  numeric,
+  sponsor_inkind_value numeric
 );
 
 create table event_attendance (
@@ -139,6 +144,11 @@ create table sponsorships (
   id            uuid primary key default gen_random_uuid(),
   created_at    timestamptz not null default now(),
   org_id        uuid not null references orgs(id),
+  package       text,                              -- annual_partner | per_event | in_kind
+  category      text,                              -- law | banking | accounting | econ_dev | corporate | other
+  category_exclusive boolean not null default false,
+  cash_value    numeric,
+  in_kind_value numeric,                           -- fair value, so total sponsorship value is one number
   asks          text,                              -- what they want from us
   benefits_owed text,                              -- what we promised
   renewal_date  date,
@@ -204,6 +214,65 @@ create table portfolio_perks (
   proof_url     text
 );
 
+-- ---------- POINTS LEDGER (incentive engine — derived, never self-reported) ----------
+create table points_ledger (
+  id            uuid primary key default gen_random_uuid(),
+  created_at    timestamptz not null default now(),
+  person_id     uuid not null references people(id),
+  points        int not null,                      -- negative rows = redemptions
+  reason        text not null,                     -- deal_invested | deal_screened | member_referral | strategic_connect | deal_feedback | pass_reason | speak_host | attend | redemption_fee_waiver | redemption_event_invite
+  source_table  text,                              -- commitments | intros | event_attendance | deal_questions | people
+  source_id     uuid,
+  expires_at    timestamptz                        -- now() + 24 months for earned points
+);
+create index on points_ledger (person_id, expires_at);
+
+-- current balance = query, not a column
+create view points_balance as
+select person_id, sum(points) as balance
+from points_ledger
+where expires_at is null or expires_at > now()
+group by person_id;
+
+-- ---------- GRANTS (econ-dev pipeline, run like the deal pipeline) ----------
+create table grants (
+  id            uuid primary key default gen_random_uuid(),
+  created_at    timestamptz not null default now(),
+  funder        text not null,                     -- e.g. 'Arlington Economic Development'
+  program       text,
+  amount        numeric,
+  stage         text not null default 'identified',-- identified | loi | application | awarded | reporting | closed | declined
+  deadline      date,
+  reporting_requirements text,                     -- which Brain metrics they want, how often
+  owner         text,
+  notes         text
+);
+
+-- ---------- OUTREACH (cold + warm, every persona, one pipeline) ----------
+create table outreach (
+  id            uuid primary key default gen_random_uuid(),
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  campaign      text not null,                     -- 'law-firm-sponsors-q3', 'angel-recruitment-fall', 'botr-underwriters'
+  persona       text not null,                     -- sponsor | grant_maker | founder | investor | partner | angel
+  person_id     uuid references people(id),
+  org_id        uuid references orgs(id),
+  target_name   text not null,
+  target_email  text,
+  warm_path     uuid references people(id),        -- the member who can intro (warm-first rule)
+  channel       text not null default 'email',     -- email | linkedin | warm_intro
+  stage         text not null default 'identified',-- identified | researched | contacted | replied | meeting | converted | closed
+  gmail_thread_id text,                            -- reply detection key
+  touches       int not null default 0,            -- max 3 (send + day-4 + day-9), then closed
+  last_touch    timestamptz,
+  next_touch    date,
+  template      text,                              -- which pitch was used → reply-rate per template
+  outcome       text,
+  owner         text
+);
+create index on outreach (campaign, stage);
+create index on outreach (gmail_thread_id);
+
 -- ---------- OPEN ITEMS (tasks extracted from Slack + calls + checklists) ----------
 create table open_items (
   id            uuid primary key default gen_random_uuid(),
@@ -243,9 +312,10 @@ create or replace function touch_updated_at() returns trigger as $$
 begin new.updated_at = now(); return new; end;
 $$ language plpgsql;
 
-create trigger people_touch  before update on people      for each row execute function touch_updated_at();
-create trigger deals_touch   before update on deals       for each row execute function touch_updated_at();
-create trigger commit_touch  before update on commitments for each row execute function touch_updated_at();
+create trigger people_touch   before update on people      for each row execute function touch_updated_at();
+create trigger deals_touch    before update on deals       for each row execute function touch_updated_at();
+create trigger commit_touch   before update on commitments for each row execute function touch_updated_at();
+create trigger outreach_touch before update on outreach    for each row execute function touch_updated_at();
 
 -- ---------- the Google Sheet view (read-only comfort layer) ----------
 -- Sync this view to a Sheet with the Supabase <> Sheets connector or a
