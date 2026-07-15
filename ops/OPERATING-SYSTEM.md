@@ -38,7 +38,7 @@ Every fix downstream depends on this: a single database (**Supabase**) that ever
 flowchart LR
   subgraph IN["Inputs (write)"]
     T["Tally forms<br/>member + founder intake"]
-    L["Luma sync<br/>registrations + attendance"]
+    L["Luma RSVPs (free)<br/>guest CSV → Drive drop<br/>→ auto-import"]
     S["#da-brain Slack channel<br/>paste a paragraph, agent parses"]
     R["Call transcripts<br/>intro, founder, expert calls"]
   end
@@ -83,7 +83,7 @@ flowchart LR
 | Surface | How it writes | Mode |
 | --- | --- | --- |
 | Tally forms | Webhook → Brain on every submission (member intake, founder intake, matching survey, volunteer application) | 🟢 Auto |
-| Luma | Nightly API sync pulls every registration and attendance into People + Events — ends the manual porting problem | 🟢 Auto |
+| Luma guest CSVs | All RSVPs stay on Luma (free tier). After each event, export the guest CSV and drop it into the watched *Luma Imports* Drive folder — n8n parses it, upserts new people, logs attendance. The manual step shrinks to a 60-second export-and-drag | 🟡 Approve |
 | #da-brain channel | Paste free text ("met Sara at the mixer, ex-Stripe, angels in fintech, $10–25k checks, happy to host") → agent parses into a structured update → react ✅ to commit | 🟡 Approve |
 | Call transcripts | Recorder (Fathom/Fireflies) joins every call → agent extracts facts, preferences, open items → same ✅ flow in #da-brain | 🟡 Approve |
 
@@ -121,7 +121,7 @@ flowchart LR
   E --> F["Onboarding kicks off:<br/>welcome email, Luma calendar invite,<br/>Slack community invite"]
   F --> G["Ongoing engagement:<br/>monthly digest, deal alerts,<br/>tier benefits, matching"]
   G -->|"score drops"| H["Re-engagement nudge<br/>to us: 'reach out to X'"]
-  L["Luma / LinkedIn<br/>direct joiners"] -->|"nightly sync"| B2["Brain record +<br/>auto welcome email +<br/>short 'join DA' form"]
+  L["Luma / LinkedIn<br/>direct joiners"] -->|"guest CSV drop →<br/>auto-import"| B2["Brain record +<br/>auto welcome email +<br/>short 'join DA' form"]
   B2 --> F
 ```
 
@@ -196,7 +196,7 @@ Every deal in diligence gets the **same fixed 2-page memo**, designed once with 
 - **Interest marking:** every deal email and portal page carries four buttons — *Committed / Interested / Watching / Pass* — one click writes to the Brain. Pass asks one optional question: why?
 - **Private discussion** lives in the portal (not WhatsApp) so privacy holds and reasoning is preserved. Interested members get thread digests by email.
 - **Right-time engagement:** members are pinged per deal exactly three times — deal room invite, diligence summary + interest ask, SPV open. Interested members get more; everyone else isn't spammed.
-- **SPV flow:** committed interest crosses threshold → spin up SPV (Sydecar/AngelList) → Brain tracks doc status per member with unsigned-doc nudges.
+- **SPV flow:** committed interest crosses threshold → spin up the SPV on Play Money (already a DA partner) → Brain tracks doc status per member with unsigned-doc nudges.
 - **Referral tracking:** every deal and intro records *referred-by* → quarterly intro-impact report — the dataset cohost and embassy conversations have been missing.
 
 ### After the wire — the portfolio loop
@@ -321,7 +321,7 @@ Every event has exactly **one job in the funnel, one curation rule, and one mone
 ### Event economics — tracking that justifies every dollar
 
 - **Per-event P&L:** sponsor cash + in-kind fair value − costs → *cost per new member* and *cost per activated angel*. The number that decides which events live, die, or scale.
-- **60-day conversion attribution** via Luma-synced attendance: "attended happy hour → joined" and "attended deal room → first commitment" are standing queries.
+- **60-day conversion attribution** via imported Luma guest CSVs: "attended happy hour → joined" and "attended deal room → first commitment" are standing queries.
 - **Sponsor ROI recap auto-compiles** per event (attendance, angel/founder split, mentions, photos, leads) → renewal deck writes itself; same numbers feed the grant report.
 - **Points accrue automatically** from attendance, hosting, speaking, guest-bringing.
 
@@ -337,7 +337,7 @@ Every event auto-creates its own T-minus checklist, and one description fans out
 | T-14 | Content engine fans out: LinkedIn post, Luma listing, member email — drafted in DA voice, approved in Slack, scheduled | 🟡 Approve |
 | T-7 | Second push to non-registered segments; reminder to registrants | 🟢 Auto |
 | T-1 | Reminder email + Slack; run-of-show to team; sponsor deliverables double-checked by bot | 🟢 Auto |
-| T+1 | Attendance synced from Luma; recap email drafted from transcript; thank-yous drafted for cohost, sponsors, speakers | 🟡 Approve |
+| T+1 | Guest CSV exported from Luma into the Drive folder — attendance lands in the Brain; recap email drafted from transcript; thank-yous drafted for cohost, sponsors, speakers | 🟡 Approve |
 | T+3 | New contacts tagged into the Brain; no-shows get recap + next date; engagement scores updated | 🟢 Auto |
 
 ```mermaid
@@ -445,10 +445,10 @@ flowchart LR
 | Glue | n8n (or Zapier / Make) | add | Webhooks, Luma sync, nudges, T-minus clocks, digests |
 | Agents | Claude API | add | #da-brain parsing, transcript extraction, content engine, newsletter, MD brief, memo drafts — always draft-then-approve for anything outbound |
 | Transcripts | Fathom / Fireflies | add | Joins every call; feeds extraction |
-| Events | Luma | keep | Registration + attendance, synced nightly via API |
+| Events | Luma (free) | keep | The RSVP of record. Guest CSV exported per event into a watched Drive folder; n8n imports people + attendance into the Brain. No Luma Plus |
 | Member email | Beehiiv or Loops | add | Newsletter + segmented sends with the 4-email budget |
-| Portal | Notion (v1) → Supabase-backed portal (v2) | add | One home per deal; start with Notion, graduate when it hurts |
-| SPV | Sydecar or AngelList | add | Entity, docs, wires; doc status mirrored into Commitments |
+| Portal | Custom Supabase portal | build | Notion ruled out — painful in practice. Thin members portal on the Brain itself: magic-link login, deal pages, four interest buttons, private comments. No sync layer |
+| SPV | Play Money | decided | Already a DA partner. Entity, docs, wires; doc status mirrored into Commitments with unsigned-doc nudges |
 | Team comms | Slack | keep | The control surface: alerts, ✅ approvals, digests, #da-brain |
 
 ---
@@ -465,12 +465,12 @@ Ordered by leverage: stop losing leads first, build the Brain second, automate t
 
 ### Phase 1 — One Brain (weeks 3–6)
 - Supabase schema (People, Deals, Events, Commitments, Sponsorships, Open items) + Sheet view
-- Tally webhooks and nightly Luma sync — the scattered-audience problem ends here
+- Tally webhooks for intake + the Luma CSV import workflow (export the guest list, drop it in Drive, done) — the scattered-audience problem ends here without Luma Plus
 - #da-brain channel with the parse-and-✅ agent; recorder on all calls with extraction
 - Tagging backfill sprint on existing contacts; open-items digest live Mon/Thu
 
 ### Phase 2 — The engines (weeks 7–12)
-- Deal pipeline stages + Notion portal v1; founder intake form; screening rubric
+- Deal pipeline stages + custom Supabase portal v1 (magic-link login, deal pages, interest buttons, private comments); founder intake form; screening rubric
 - Diligence automation: auto checklists, expert matching, question synthesis, memo drafts
 - Content engine (description → LinkedIn + Luma + email) with Slack approval
 - T-minus event checklists, post-event recap/thanks automation, sponsor tracker + reminders
@@ -480,7 +480,7 @@ Ordered by leverage: stop losing leads first, build the Brain second, automate t
 ### Phase 3 — Compounding (quarter 2)
 - Launch paid tiers with member-only activations; migrate existing members
 - Formalize the IC (3–5 members, rubric, logged votes); per-deal interest buttons + portal discussion
-- SPV interest → threshold → spin-up flow with doc-status nudges
+- SPV interest → threshold → spin-up on Play Money with doc-status nudges
 - Member matching survey + monthly pairings; volunteer program v1 with benefits
 - Referral / intro tracking with the quarterly impact report
 - Points engine live (auto-derived ledger, fee waivers at renewal); first grant applications backed by the impact dashboard; gala + bootcamp planned
@@ -488,7 +488,7 @@ Ordered by leverage: stop losing leads first, build the Brain second, automate t
 ### Phase 4 — Horizon (later)
 - Embassy activation: foreign-national audiences as a Community segment, embassy dinners at Charter tier
 - Proprietary dataset: the Brain has quietly been building it — deals seen, member preferences, intro outcomes — package it when dense enough
-- Portal v2: custom Supabase-backed member portal replacing Notion
+- Portal v2: member profiles, deal history, and points balances live fully in the portal
 
 ---
 

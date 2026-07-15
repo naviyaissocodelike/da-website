@@ -1,6 +1,6 @@
 # n8n workflows — import & setup
 
-Four importable workflows, same pattern as `newsletter/n8n/da-newsletter-capture.json` (which is already built on the newsletter branch). Import each via **Workflows → ⋯ → Import from file**, attach credentials, replace the `*_HERE` placeholders, run one manual test, then **Activate**.
+Five importable workflows, same pattern as `newsletter/n8n/da-newsletter-capture.json` (which is already built on the newsletter branch). Import each via **Workflows → ⋯ → Import from file**, attach credentials, replace the `*_HERE` placeholders, run one manual test, then **Activate**.
 
 All four start on **Google Sheets** as the store (works today, zero new accounts). When the Supabase Brain goes live (Phase 1), only the Sheets nodes get swapped for Supabase nodes — the flows don't change.
 
@@ -53,6 +53,22 @@ Setup:
 React **✅ on your original message** (not the bot's reply) and the pending record moves into the `People` tab; the bot confirms in-thread. Any other reaction (or none) leaves it pending — nothing enters the Brain without a human ✅.
 
 Setup: import, attach Slack + Sheets credentials, replace the same two placeholders. Requires the Slack app to have the `reactions:read` scope.
+
+## 5. `da-luma-csv-import.json` — Luma guest list → the Brain
+
+RSVPs stay entirely on Luma (free tier). The manual porting step shrinks to: **export the guest CSV from Luma, drop it into the *Luma Imports* Drive folder.** n8n does the rest — parses the CSV (column names mapped flexibly), upserts new people into the `People` tab, appends rows to an `Attendance` tab, and posts a summary to Slack.
+
+```
+Drive folder (new file) → download → parse CSV → normalize → ┬ upsert People tab
+                                                             └ append Attendance tab → Slack summary
+```
+
+Setup:
+1. Create a **Luma Imports** folder in Drive; replace `LUMA_IMPORTS_FOLDER_ID_HERE`.
+2. Add an `Attendance` tab to the DA Brain sheet: `event | full_name | email | attended | approval_status | source | imported_at`.
+3. Import, attach Drive + Sheets + Slack credentials; replace `BRAIN_SHEET_ID_HERE` and `ALERT_CHANNEL_ID_HERE`.
+4. **Name each CSV `<event name> YYYY-MM-DD.csv` when you drop it in** — the filename becomes the event label on every attendance row.
+5. Export tip: in Luma → your event → Guests → the download icon exports the CSV, checked-in status included after the event.
 
 ---
 
