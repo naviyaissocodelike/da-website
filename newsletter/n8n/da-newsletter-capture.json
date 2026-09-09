@@ -1,0 +1,153 @@
+{
+  "name": "DA Newsletter Capture",
+  "nodes": [
+    {
+      "name": "Slack Trigger",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [-200, 0],
+      "parameters": {
+        "trigger": ["message"],
+        "channelId": { "__rl": true, "mode": "id", "value": "C08HSD1LNN9" },
+        "options": { "resolveIds": true }
+      }
+    },
+    {
+      "name": "Skip system & bot messages",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [40, 0],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.subtype }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty" }
+            },
+            {
+              "leftValue": "={{ $json.bot_id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Append to inbox doc",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [280, -140],
+      "parameters": {
+        "operation": "update",
+        "documentURL": "1GJG638-s2p26Cxv8_AnyP3sfj_5xhm__GHrnnFZoI48",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "=[{{ $now.format('yyyy-MM-dd') }}] {{ $json.user }}: {{ $json.text }}\n"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Has attachments?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [280, 140],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.files }}",
+              "rightValue": "",
+              "operator": { "type": "array", "operation": "notEmpty" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Split out files",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [520, 140],
+      "parameters": { "fieldToSplitOut": "files" }
+    },
+    {
+      "name": "Download from Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 140],
+      "parameters": {
+        "url": "={{ $json.url_private_download }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      }
+    },
+    {
+      "name": "Save image to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1000, 140],
+      "parameters": {
+        "operation": "upload",
+        "name": "={{ $now.format('yyyy-MM-dd') }}-{{ $('Split out files').item.json.name }}",
+        "driveId": { "__rl": true, "mode": "list", "value": "My Drive" },
+        "folderId": { "__rl": true, "mode": "id", "value": "1ErC49C4Vvsw3wgitwM1WhfYA1qFdmjCS" },
+        "inputDataFieldName": "data"
+      }
+    },
+    {
+      "name": "Log image link in doc",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [1240, 140],
+      "parameters": {
+        "operation": "update",
+        "documentURL": "1GJG638-s2p26Cxv8_AnyP3sfj_5xhm__GHrnnFZoI48",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "=    IMAGE: {{ $json.webViewLink }}\n"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger": {
+      "main": [[{ "node": "Skip system & bot messages", "type": "main", "index": 0 }]]
+    },
+    "Skip system & bot messages": {
+      "main": [
+        [
+          { "node": "Append to inbox doc", "type": "main", "index": 0 },
+          { "node": "Has attachments?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Has attachments?": {
+      "main": [[{ "node": "Split out files", "type": "main", "index": 0 }]]
+    },
+    "Split out files": {
+      "main": [[{ "node": "Download from Slack", "type": "main", "index": 0 }]]
+    },
+    "Download from Slack": {
+      "main": [[{ "node": "Save image to Drive", "type": "main", "index": 0 }]]
+    },
+    "Save image to Drive": {
+      "main": [[{ "node": "Log image link in doc", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

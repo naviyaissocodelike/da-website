@@ -1,0 +1,28 @@
+name: "📅 Newsletter: Event"
+description: Log an upcoming event for the next newsletter
+title: "[Event] "
+labels: ["newsletter", "event"]
+body:
+  - type: input
+    id: when
+    attributes:
+      label: When
+      placeholder: "Aug 14, 6:00–8:30 PM"
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      placeholder: "Venue, city"
+  - type: input
+    id: rsvp
+    attributes:
+      label: RSVP link
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Why should a member come? Who's it for? Rough notes are fine.
+    validations:
+      required: true

@@ -1,0 +1,22 @@
+name: "🙋 Newsletter: Community ask"
+description: Log a request to the community for the next newsletter
+title: "[Ask] "
+labels: ["newsletter", "ask"]
+body:
+  - type: input
+    id: who
+    attributes:
+      label: Who's asking
+      placeholder: "member / founder / the DA team"
+  - type: input
+    id: respond
+    attributes:
+      label: How to respond
+      placeholder: "reply to the newsletter / email …"
+  - type: textarea
+    id: notes
+    attributes:
+      label: The ask
+      description: Be specific — "two angels with health-tech backgrounds for Thursday's diligence call" beats "anyone interested in diligence."
+    validations:
+      required: true
