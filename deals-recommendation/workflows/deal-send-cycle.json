@@ -1,0 +1,936 @@
+{
+  "name": "DA Deal Send Cycle",
+  "nodes": [
+    {
+      "id": "webhook-send-deals",
+      "name": "Webhook /send-deals",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        320
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "send-deals",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "read-config",
+      "name": "Read Config",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        220,
+        320
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Config",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "read-contacts",
+      "name": "Read Contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        440,
+        320
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Contacts",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "read-deals",
+      "name": "Read Deals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        660,
+        320
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Deals",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "read-log",
+      "name": "Read Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        880,
+        320
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Distribution_Log",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "match-investors",
+      "name": "Match Investors",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        320
+      ],
+      "parameters": {
+        "jsCode": "'use strict';\n\n/**\n * District Angels — deal/investor matching (conditional rules, no scoring).\n *\n * Runs in two places, unchanged:\n *   1. An n8n Code node — paste this whole file, then the driver snippet at the\n *      bottom of this file (see N8N DRIVER) as the last lines of the node.\n *   2. Plain Node.js for tests: `node --test` from the repo root.\n *\n * Zero dependencies. All values arrive as strings from Google Sheets.\n */\n\n// Config keys the Config tab may override. Values are strings, as in the Sheet.\nconst DEFAULT_CONFIG = {\n  enforce_geography: 'TRUE',\n  enforce_founder_type: 'TRUE',\n  enforce_raise_band: 'TRUE',\n  // JSON object in one Config cell, e.g. {\"health tech\":\"healthtech\",\"ai/ml\":\"ai\"}\n  industry_aliases: '{}',\n  max_deals_per_digest: '5',\n};\n\n// Log statuses that count as \"this contact already got this deal\".\nconst ALREADY_SENT_STATUSES = ['sent', 'approved'];\n\nfunction truthy(value) {\n  if (typeof value === 'boolean') return value;\n  const s = String(value == null ? '' : value).trim().toLowerCase();\n  return s === 'true' || s === 'yes' || s === '1' || s === 'x' || s === 'checked';\n}\n\nfunction toNumber(value) {\n  if (value == null || String(value).trim() === '') return null;\n  const n = Number(String(value).replace(/[$,\\s]/g, ''));\n  return Number.isFinite(n) ? n : null;\n}\n\n// \"FinTech \" / \"fin-tech\" / \"fin_tech\" all become \"fin tech\" before aliasing.\nfunction cleanTerm(value) {\n  return String(value == null ? '' : value)\n    .trim()\n    .toLowerCase()\n    .replace(/[\\s_-]+/g, ' ');\n}\n\nfunction buildConfig(configRows) {\n  const config = Object.assign({}, DEFAULT_CONFIG);\n  for (const row of configRows || []) {\n    const key = cleanTerm(row.key).replace(/ /g, '_');\n    if (key) config[key] = row.value == null ? '' : String(row.value);\n  }\n  return config;\n}\n\nfunction makeNormalizer(config) {\n  let raw = {};\n  try {\n    raw = JSON.parse(config.industry_aliases || '{}');\n  } catch (err) {\n    raw = {}; // a malformed alias map must never break a send cycle\n  }\n  const aliases = {};\n  for (const key of Object.keys(raw)) aliases[cleanTerm(key)] = cleanTerm(raw[key]);\n  return term => {\n    const t = cleanTerm(term);\n    return aliases[t] || t;\n  };\n}\n\nfunction splitList(value, normalize) {\n  return String(value == null ? '' : value)\n    .split(/[,;\\n]/)\n    .map(normalize)\n    .filter(Boolean);\n}\n\nfunction overlap(listA, listB) {\n  const set = new Set(listA);\n  return listB.filter(item => set.has(item));\n}\n\n/**\n * Contact-level gates (independent of any deal).\n * Returns null when the contact is eligible, otherwise a reason string.\n */\nfunction contactGate(contact, normalize) {\n  if (normalize(contact.role_type) !== 'investor') return 'not_investor';\n  const email = String(contact.email || '').trim();\n  if (!email || !email.includes('@')) return 'no_email';\n  if (truthy(contact.do_not_contact)) return 'do_not_contact';\n  if (truthy(contact.unsubscribed_deals)) return 'unsubscribed';\n  return null;\n}\n\n/**\n * Pair-level gates for one (contact, deal).\n * Returns { ok: true, reasons: [...] } with human-readable match reasons,\n * or { ok: false, reason: '<gate name>' }.\n */\nfunction pairGate(contact, deal, config, normalize, alreadySentKeys) {\n  const reasons = [];\n\n  if (alreadySentKeys.has(`${deal.deal_id}|${contact.contact_id}`)) {\n    return { ok: false, reason: 'already_sent' };\n  }\n\n  // Stage: investor's list must contain the deal stage. Blank or \"any\" = all stages.\n  const stages = splitList(contact.investing_stage_pref, normalize);\n  const dealStage = normalize(deal.stage);\n  if (stages.length && !stages.includes('any')) {\n    if (!dealStage || !stages.includes(dealStage)) return { ok: false, reason: 'stage' };\n    reasons.push(`stage: ${dealStage}`);\n  }\n\n  // Industry: at least one overlap. Blank investor list = generalist, passes.\n  const wants = splitList(contact.industries, normalize);\n  const has = splitList(deal.industries, normalize);\n  if (wants.length && has.length) {\n    const common = overlap(wants, has);\n    if (!common.length) return { ok: false, reason: 'industry' };\n    reasons.push(`industry: ${common.join(', ')}`);\n  }\n\n  // Geography: blank on either side = anywhere.\n  if (truthy(config.enforce_geography)) {\n    const contactGeo = splitList(contact.geography, normalize);\n    const dealGeo = splitList(deal.geography, normalize);\n    if (contactGeo.length && dealGeo.length) {\n      const common = overlap(contactGeo, dealGeo);\n      if (!common.length) return { ok: false, reason: 'geography' };\n      reasons.push(`geo: ${common.join(', ')}`);\n    }\n  }\n\n  // Founder type: only enforced when BOTH sides tagged something.\n  if (truthy(config.enforce_founder_type)) {\n    const interests = splitList(contact.founder_type_interests, normalize);\n    const tags = splitList(deal.founder_type_tags, normalize);\n    if (interests.length && tags.length) {\n      const common = overlap(interests, tags);\n      if (!common.length) return { ok: false, reason: 'founder_type' };\n      reasons.push(`founder: ${common.join(', ')}`);\n    }\n  }\n\n  // Raise band: if the investor set a min/max raise they play in, the deal's\n  // raise must fall inside it. Missing numbers on either side = no gate.\n  if (truthy(config.enforce_raise_band)) {\n    const raise = toNumber(deal.raise_amount);\n    const min = toNumber(contact.min_check);\n    const max = toNumber(contact.max_check);\n    if (raise != null) {\n      if (min != null && raise < min) return { ok: false, reason: 'raise_band' };\n      if (max != null && raise > max) return { ok: false, reason: 'raise_band' };\n    }\n  }\n\n  return { ok: true, reasons };\n}\n\n/**\n * Main entry point.\n * @param {Array<Object>} contacts   rows from the Contacts tab\n * @param {Array<Object>} deals      rows from the Deals tab (all rows OK; flag is re-checked)\n * @param {Array<Object>} logRows    rows from the Distribution_Log tab\n * @param {Array<Object>} configRows rows from the Config tab ({key, value})\n * @returns {{recipients: Array, excluded: Object, summary: Object}}\n */\nfunction matchCycle(contacts, deals, logRows, configRows) {\n  const config = buildConfig(configRows);\n  const normalize = makeNormalizer(config);\n  const maxDeals = toNumber(config.max_deals_per_digest) || 5;\n\n  const flaggedDeals = (deals || []).filter(\n    d => truthy(d.include_in_next_send) && String(d.deal_id || '').trim()\n  );\n\n  const alreadySentKeys = new Set();\n  for (const row of logRows || []) {\n    if (ALREADY_SENT_STATUSES.includes(cleanTerm(row.status))) {\n      alreadySentKeys.add(`${row.deal_id}|${row.contact_id}`);\n    }\n  }\n\n  const excluded = {}; // reason -> count (contact-level counts contacts, pair-level counts pairs)\n  const bump = reason => {\n    excluded[reason] = (excluded[reason] || 0) + 1;\n  };\n\n  const recipients = [];\n  for (const contact of contacts || []) {\n    const contactReason = contactGate(contact, normalize);\n    if (contactReason) {\n      bump(contactReason);\n      continue;\n    }\n\n    const matchedDeals = [];\n    for (const deal of flaggedDeals) {\n      const result = pairGate(contact, deal, config, normalize, alreadySentKeys);\n      if (!result.ok) {\n        bump(result.reason);\n        continue;\n      }\n      matchedDeals.push({\n        deal_id: deal.deal_id,\n        company_name: deal.company_name,\n        match_reasons: result.reasons.join('; ') || 'generalist match',\n      });\n    }\n\n    if (!matchedDeals.length) continue;\n    if (matchedDeals.length > maxDeals) {\n      bump('over_digest_cap');\n      matchedDeals.length = maxDeals;\n    }\n\n    recipients.push({\n      contact_id: contact.contact_id,\n      email: String(contact.email).trim(),\n      first_name: contact.first_name || '',\n      last_name: contact.last_name || '',\n      can_help_with: contact.can_help_with || '',\n      deals: matchedDeals,\n    });\n  }\n\n  return {\n    recipients,\n    excluded,\n    summary: {\n      flagged_deals: flaggedDeals.length,\n      contacts_considered: (contacts || []).length,\n      recipients: recipients.length,\n      pairs: recipients.reduce((n, r) => n + r.deals.length, 0),\n    },\n  };\n}\n\n/* ---------------------------------------------------------------------------\n * N8N DRIVER — inside the \"Match Investors\" Code node, keep everything above\n * as-is and finish the node with these lines (uncommented):\n *\n * const contacts   = $('Read Contacts').all().map(i => i.json);\n * const deals      = $('Read Deals').all().map(i => i.json);\n * const logRows    = $('Read Log').all().map(i => i.json);\n * const configRows = $('Read Config').all().map(i => i.json);\n * return [{ json: matchCycle(contacts, deals, logRows, configRows) }];\n * ------------------------------------------------------------------------- */\n\nif (typeof module !== 'undefined' && module.exports) {\n  module.exports = {\n    matchCycle,\n    contactGate,\n    pairGate,\n    buildConfig,\n    makeNormalizer,\n    splitList,\n    truthy,\n    toNumber,\n    cleanTerm,\n  };\n}\n\n// ---- n8n driver (reads the four sheet tabs, runs the matcher) ----\nconst contacts   = $('Read Contacts').all().map(i => i.json);\nconst deals      = $('Read Deals').all().map(i => i.json);\nconst logRows    = $('Read Log').all().map(i => i.json);\nconst configRows = $('Read Config').all().map(i => i.json);\n\nconst result = matchCycle(contacts, deals, logRows, configRows);\nconst config = buildConfig(configRows);\nconst cycleId = new Date().toISOString().slice(0, 10) + '-' + Math.random().toString(36).slice(2, 6);\n\nreturn [{ json: Object.assign({ cycle_id: cycleId, config: config }, result) }];"
+      }
+    },
+    {
+      "id": "any-recipients",
+      "name": "Any Recipients?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.summary.recipients }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "slack-no-matches",
+      "name": "Slack - No Matches",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1540,
+        640
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#deal-review",
+          "mode": "name"
+        },
+        "text": "={{ 'Deal cycle ' + $('Match Investors').first().json.cycle_id + ': ' + $('Match Investors').first().json.summary.flagged_deals + ' flagged deal(s) but no matching investors. Excluded: ' + JSON.stringify($('Match Investors').first().json.excluded) + '. Check Contacts data / Config rules.' }}",
+        "otherOptions": {}
+      }
+    },
+    {
+      "id": "build-llm-batches",
+      "name": "Build LLM Batches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Chunk recipients into groups of 4 per LLM call to conserve free-tier quota.\n// The canonical prompt lives in prompts/digest_email.md - keep them in sync.\nconst INSTRUCTION = \"You draft deal-digest emails for District Angels, an angel investing community.\\nEach email goes from {{sender_name}} to one member investor and covers the deals\\nlisted for that investor - nothing else.\\n\\nVoice: warm, direct, peer-to-peer. 100-180 words total. No hype (\\\"exciting\\nopportunity\\\", \\\"rocket ship\\\", \\\"game-changing\\\"), no fabricated facts - use ONLY\\nthe deal facts provided. Do not invent traction, metrics, or names.\\n\\nStructure per email:\\n1. Greeting with first name, then ONE personal opener line - use the investor's\\n   interests or can_help_with if given; otherwise a simple \\\"a few deals from\\n   this month's pipeline that fit your focus\\\".\\n2. One short block per deal: company name in plain text, the one-liner,\\n   stage + raise, our take (from why_compelling), then the deck link on its\\n   own line.\\n3. Soft close: \\\"Reply if you'd like an intro or the full memo.\\\" Nothing pushier.\\n4. No signature - it is appended automatically.\\n\\nSubject line: <= 60 characters, plain, names one or two companies. No emojis,\\nno clickbait.\\n\\nReturn STRICT JSON only - no markdown fences, no commentary - exactly:\\n[{\\\"contact_id\\\": \\\"...\\\", \\\"subject\\\": \\\"...\\\", \\\"body\\\": \\\"...\\\"}]\\nOne object per investor below, same contact_id values, plain-text body with\\nblank lines between blocks.\";\n\nconst src = $input.first().json;\nconst dealRows = $('Read Deals').all().map(i => i.json);\nconst senderName = src.config.sender_name || 'District Angels';\nconst batches = [];\nfor (let i = 0; i < src.recipients.length; i += 4) {\n  const group = src.recipients.slice(i, i + 4).map(function (r) {\n    return {\n      contact_id: r.contact_id,\n      first_name: r.first_name,\n      can_help_with: r.can_help_with,\n      deals: r.deals.map(function (d) {\n        const deal = dealRows.find(function (x) { return x.deal_id === d.deal_id; }) || {};\n        return {\n          company_name: deal.company_name,\n          one_liner: deal.one_liner,\n          stage: deal.stage,\n          raise_amount: deal.raise_amount,\n          why_compelling: deal.why_compelling,\n          deck_url: deal.deck_url,\n          match_reasons: d.match_reasons,\n        };\n      }),\n    };\n  });\n  const prompt = INSTRUCTION.split('{{sender_name}}').join(senderName)\n    + '\\n\\nINVESTORS:\\n' + JSON.stringify(group, null, 2);\n  batches.push({ json: { prompt: prompt, batch: group } });\n}\nreturn batches;"
+      }
+    },
+    {
+      "id": "draft-digests-gemini",
+      "name": "Draft Digests (Gemini)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        320
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 4000,
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.prompt }] }], generationConfig: { responseMimeType: 'application/json', temperature: 0.7 } }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "draft-digests-groq",
+      "name": "Draft Digests (Groq - fallback)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        0
+      ],
+      "disabled": true,
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 4000,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: $json.prompt }], response_format: { type: 'json_object' } }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "parse-drafts",
+      "name": "Parse Drafts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Collect LLM drafts by contact_id; anyone missing (LLM error, bad JSON,\n// rate limit) gets the plain template so a cycle never blocks.\nconst src = $('Match Investors').first().json;\nconst batches = $('Build LLM Batches').all().map(i => i.json);\n\nconst drafts = {};\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  let text = '';\n  if (j.candidates && j.candidates[0]) {\n    text = (((j.candidates[0].content || {}).parts || [])[0] || {}).text || '';\n  } else if (j.choices && j.choices[0]) {\n    text = (j.choices[0].message || {}).content || '';\n  }\n  if (!text) continue; // errored item -> template fallback below\n  try {\n    const m = String(text).match(/\\[[\\s\\S]*\\]/);\n    const arr = JSON.parse(m ? m[0] : text);\n    for (const d of arr) {\n      if (d && d.contact_id && d.subject && d.body) drafts[d.contact_id] = d;\n    }\n  } catch (e) { /* template fallback below */ }\n}\n\nconst allBatchEntries = [];\nfor (const b of batches) for (const e of b.batch) allBatchEntries.push(e);\nconst month = new Date().toLocaleString('en-US', { month: 'long' });\n\nconst out = [];\nfor (const r of src.recipients) {\n  const entry = allBatchEntries.find(function (x) { return x.contact_id === r.contact_id; }) || { deals: [] };\n  let d = drafts[r.contact_id];\n  if (!d) {\n    const names = entry.deals.map(function (x) { return x.company_name; }).join(' + ');\n    const blocks = entry.deals.map(function (x) {\n      return '- ' + x.company_name + ' - ' + (x.one_liner || '') + '\\n  '\n        + (x.stage || '') + ', raising ' + (x.raise_amount || 'n/a')\n        + (x.why_compelling ? '. Our take: ' + x.why_compelling : '')\n        + (x.deck_url ? '\\n  Deck: ' + x.deck_url : '');\n    }).join('\\n\\n');\n    d = {\n      subject: ('District Angels deals - ' + month + ': ' + names).slice(0, 78),\n      body: 'Hi ' + (r.first_name || 'there') + ',\\n\\n'\n        + \"A few deals from this month's pipeline that matched your focus:\\n\\n\"\n        + blocks + '\\n\\n' + \"Reply if you'd like an intro or the full memo.\",\n    };\n  }\n  out.push({ json: {\n    cycle_id: src.cycle_id,\n    contact_id: r.contact_id,\n    contact_name: ((r.first_name || '') + ' ' + (r.last_name || '')).trim(),\n    email: r.email,\n    first_name: r.first_name,\n    subject: d.subject,\n    body: d.body,\n    deals: r.deals,\n  } });\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "build-log-rows",
+      "name": "Build Log Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// One Distribution_Log row per (deal, investor) pair.\nconst out = [];\nfor (const item of $input.all()) {\n  const r = item.json;\n  for (const d of r.deals) {\n    out.push({ json: {\n      cycle_id: r.cycle_id,\n      deal_id: d.deal_id,\n      company_name: d.company_name,\n      contact_id: r.contact_id,\n      contact_name: r.contact_name,\n      email: r.email,\n      match_reasons: d.match_reasons,\n      include: 'TRUE',\n      digest_subject: r.subject,\n      digest_body: r.body,\n      status: 'SUGGESTED',\n      sent_at: '',\n      gmail_message_id: '',\n    } });\n  }\n}\nreturn out;"
+      }
+    },
+    {
+      "id": "append-log-rows",
+      "name": "Append Log Rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2420,
+        320
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Distribution_Log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "build-approval-summary",
+      "name": "Build Approval Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Human-readable cycle summary for the Slack approval card.\nconst src = $('Match Investors').first().json;\nconst drafts = $('Parse Drafts').all().map(i => i.json);\nconst sample = drafts[0] || { email: '(none)', subject: '(none)', body: '' };\nconst excluded = Object.keys(src.excluded).map(function (k) { return src.excluded[k] + ' ' + k; }).join(', ') || 'none';\n\nconst perDeal = {};\nfor (const item of $('Build Log Rows').all()) {\n  const j = item.json;\n  if (!perDeal[j.company_name]) perDeal[j.company_name] = 0;\n  perDeal[j.company_name] += 1;\n}\nconst dealLines = Object.keys(perDeal).map(function (name) { return '- ' + name + ': ' + perDeal[name] + ' investor(s)'; }).join('\\n');\n\nconst fence = String.fromCharCode(96, 96, 96);\nconst text = [\n  '*Deal cycle ' + src.cycle_id + '* - ' + src.summary.flagged_deals + ' deal(s) -> ' + src.summary.recipients + ' investor(s), ' + src.summary.pairs + ' pairing(s).',\n  dealLines,\n  'Excluded: ' + excluded + '.',\n  '',\n  '*Sample email (' + sample.email + ')* - subject: ' + sample.subject,\n  fence + String(sample.body).slice(0, 1200) + fence,\n  '',\n  '_Edit drafts or untick include in the Distribution_Log tab BEFORE approving - the send step re-reads the sheet._',\n].join('\\n');\n\nreturn [{ json: { text: text, cycle_id: src.cycle_id } }];"
+      }
+    },
+    {
+      "id": "slack-approve-cycle",
+      "name": "Slack - Approve Cycle",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2860,
+        320
+      ],
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#deal-review",
+          "mode": "name"
+        },
+        "message": "={{ $json.text }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": true,
+          "resumeAmount": 48,
+          "resumeUnit": "hours"
+        }
+      }
+    },
+    {
+      "id": "approved",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3080,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "slack-rejected",
+      "name": "Slack - Rejected",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3300,
+        640
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#deal-review",
+          "mode": "name"
+        },
+        "text": "={{ 'Deal cycle ' + $('Match Investors').first().json.cycle_id + ' rejected - nothing was sent. Rows stay SUGGESTED in Distribution_Log; re-run any time by re-flagging the deals.' }}",
+        "otherOptions": {}
+      }
+    },
+    {
+      "id": "re-read-log",
+      "name": "Re-read Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3300,
+        320
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Distribution_Log",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "collect-recipients-to-send",
+      "name": "Collect Recipients To Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Re-read after approval so human edits in the sheet win.\nconst cycleId = $('Match Investors').first().json.cycle_id;\nconst cfgRows = $('Read Config').all().map(i => i.json);\nconst sig = (cfgRows.find(function (r) { return r.key === 'email_signature'; }) || {}).value || '';\n\nfunction truthyCell(v) {\n  const s = String(v == null ? '' : v).trim().toLowerCase();\n  return s === 'true' || s === 'yes' || s === '1' || s === 'x' || s === 'checked';\n}\n\nconst rows = $input.all().map(i => i.json).filter(function (r) {\n  return r.cycle_id === cycleId && String(r.status).trim().toUpperCase() === 'SUGGESTED' && truthyCell(r.include);\n});\n\nconst byContact = {};\nfor (const r of rows) {\n  if (!byContact[r.contact_id]) {\n    byContact[r.contact_id] = {\n      contact_id: r.contact_id,\n      email: r.email,\n      subject: r.digest_subject,\n      body: String(r.digest_body || '') + (sig ? '\\n\\n' + sig : ''),\n      row_numbers: [],\n    };\n  }\n  byContact[r.contact_id].row_numbers.push(r.row_number);\n}\nreturn Object.keys(byContact).map(function (k) { return { json: byContact[k] }; });"
+      }
+    },
+    {
+      "id": "one-by-one",
+      "name": "One By One",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3740,
+        320
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "send-digest",
+      "name": "Send Digest",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3960,
+        480
+      ],
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.body }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "wait-5s",
+      "name": "Wait 5s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4180,
+        480
+      ],
+      "parameters": {
+        "amount": 5,
+        "unit": "seconds"
+      }
+    },
+    {
+      "id": "build-sent-updates",
+      "name": "Build Sent Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Flip this recipient's log rows to SENT (keyed by sheet row_number).\nconst rec = $('One By One').first().json;\nconst msg = $input.first().json || {};\nreturn rec.row_numbers.map(function (n) {\n  return { json: {\n    row_number: n,\n    status: 'SENT',\n    sent_at: new Date().toISOString(),\n    gmail_message_id: msg.id || '',\n  } };\n});"
+      }
+    },
+    {
+      "id": "mark-sent",
+      "name": "Mark Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4620,
+        480
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Distribution_Log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "re-read-deals",
+      "name": "Re-read Deals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3960,
+        160
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Deals",
+          "mode": "name"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "build-deal-updates",
+      "name": "Build Deal Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4180,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// Clear flags on every deal that was in this cycle; record outcome.\nfunction truthyCell(v) {\n  const s = String(v == null ? '' : v).trim().toLowerCase();\n  return s === 'true' || s === 'yes' || s === '1' || s === 'x' || s === 'checked';\n}\nconst pairedDeals = {};\nfor (const item of $('Build Log Rows').all()) pairedDeals[item.json.deal_id] = true;\n\nconst rows = $input.all().map(i => i.json).filter(function (r) { return truthyCell(r.include_in_next_send); });\nreturn rows.map(function (r) {\n  return { json: {\n    row_number: r.row_number,\n    include_in_next_send: 'FALSE',\n    send_status: pairedDeals[r.deal_id] ? 'SENT' : 'NO_MATCHES',\n    last_sent_at: new Date().toISOString(),\n  } };\n});"
+      }
+    },
+    {
+      "id": "update-deals",
+      "name": "Update Deals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4400,
+        160
+      ],
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Deals",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "slack-confirm-sent",
+      "name": "Slack - Confirm Sent",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        4620,
+        160
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#deal-review",
+          "mode": "name"
+        },
+        "text": "={{ 'Deal cycle ' + $('Match Investors').first().json.cycle_id + ': sent ' + $('Collect Recipients To Send').all().length + ' digest email(s) to ' + $('Collect Recipients To Send').all().length + ' investor(s). Log updated.' }}",
+        "otherOptions": {}
+      }
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -80
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 220,
+        "content": "## Setup (see repo README)\n1. Replace YOUR_SPREADSHEET_ID in every Google Sheets node.\n2. Attach credentials: Google Sheets, Gmail, Slack, and an HTTP Header Auth credential for Gemini (header `X-goog-api-key`).\n3. Point the Slack nodes at your review channel.\n4. Trigger: POST the production webhook URL (wire it to a Slack slash command) or press Execute.\n\nIf Gemini free tier is rate-limited, disable the Gemini node and enable the Groq node (header `Authorization: Bearer <key>`) - the Parse Drafts node understands both response shapes, and anyone still missing a draft gets the built-in plain template."
+      }
+    }
+  ],
+  "connections": {
+    "Webhook /send-deals": {
+      "main": [
+        [
+          {
+            "node": "Read Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Config": {
+      "main": [
+        [
+          {
+            "node": "Read Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Contacts": {
+      "main": [
+        [
+          {
+            "node": "Read Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Deals": {
+      "main": [
+        [
+          {
+            "node": "Read Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Log": {
+      "main": [
+        [
+          {
+            "node": "Match Investors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Investors": {
+      "main": [
+        [
+          {
+            "node": "Any Recipients?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Recipients?": {
+      "main": [
+        [
+          {
+            "node": "Build LLM Batches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - No Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build LLM Batches": {
+      "main": [
+        [
+          {
+            "node": "Draft Digests (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Digests (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "Parse Drafts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Digests (Groq - fallback)": {
+      "main": [
+        [
+          {
+            "node": "Parse Drafts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Drafts": {
+      "main": [
+        [
+          {
+            "node": "Build Log Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Log Rows": {
+      "main": [
+        [
+          {
+            "node": "Append Log Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Log Rows": {
+      "main": [
+        [
+          {
+            "node": "Build Approval Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Approval Summary": {
+      "main": [
+        [
+          {
+            "node": "Slack - Approve Cycle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Approve Cycle": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Re-read Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-read Log": {
+      "main": [
+        [
+          {
+            "node": "Collect Recipients To Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Recipients To Send": {
+      "main": [
+        [
+          {
+            "node": "One By One",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One By One": {
+      "main": [
+        [
+          {
+            "node": "Re-read Deals",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Digest": {
+      "main": [
+        [
+          {
+            "node": "Wait 5s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 5s": {
+      "main": [
+        [
+          {
+            "node": "Build Sent Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Sent Updates": {
+      "main": [
+        [
+          {
+            "node": "Mark Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Sent": {
+      "main": [
+        [
+          {
+            "node": "One By One",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-read Deals": {
+      "main": [
+        [
+          {
+            "node": "Build Deal Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Deal Updates": {
+      "main": [
+        [
+          {
+            "node": "Update Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Deals": {
+      "main": [
+        [
+          {
+            "node": "Slack - Confirm Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {}
+}
