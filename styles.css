@@ -170,6 +170,11 @@ section.band.tight{padding:60px 0}
 .plist li{display:grid;grid-template-columns:120px 1fr;gap:20px;padding:10px 0;border-top:1px solid var(--line)}
 .plist li:first-child{border-top:0;padding-top:0}
 .plist a:hover b{color:var(--coral-deep)}
+.plist.wide li{grid-template-columns:180px 1fr}
+.pf-list li{grid-template-columns:120px 1fr auto;align-items:center}
+.pf-logo img{width:110px;height:auto;max-height:34px;object-fit:contain}
+.pf-list .tl{font-size:14px;white-space:nowrap}
+.home .nav-links .lk.on{color:var(--ink);font-weight:600}
 .crew{display:flex;flex-wrap:wrap;gap:10px 24px}
 .crew > a,.crew > span{display:inline-flex;align-items:center;gap:9px;color:var(--ink);font-size:15px}
 .crew > a:hover{color:var(--coral-deep)}
@@ -180,6 +185,7 @@ section.band.tight{padding:60px 0}
 .foot a:hover{color:var(--coral-deep)}
 @media (max-width:720px){
   .row{grid-template-columns:1fr;gap:12px;padding:26px 0}
-  .dl,.plist li{grid-template-columns:1fr;gap:2px}
+  .dl,.plist li,.plist.wide li,.pf-list li{grid-template-columns:1fr;gap:6px}
+  .pf-list li{align-items:start}
   .dl dd{margin-bottom:12px}
 }
