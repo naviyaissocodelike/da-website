@@ -109,6 +109,7 @@ section.band{padding:84px 0}
 .pf-list li{grid-template-columns:120px 1fr auto;align-items:center}
 .pf-logo img{width:110px;height:auto;max-height:34px;object-fit:contain}
 .pf-list .tl{font-size:14px;white-space:nowrap}
+.pf-list .meta{display:block;font-size:13px;color:var(--slate);margin-top:2px}
 .home .nav-links .lk.on{color:var(--ink);font-weight:600}
 .crew{display:flex;flex-wrap:wrap;gap:10px 24px}
 .crew > a,.crew > span{display:inline-flex;align-items:center;gap:9px;color:var(--ink);font-size:15px}
