@@ -1,0 +1,20 @@
+name: "📣 Newsletter: News / win"
+description: Log a win, shoutout, report, or portfolio update for the next newsletter
+title: "[News] "
+labels: ["newsletter", "news"]
+body:
+  - type: input
+    id: credit
+    attributes:
+      label: Who to credit
+      description: Name the humans.
+  - type: input
+    id: link
+    attributes:
+      label: Link
+  - type: textarea
+    id: notes
+    attributes:
+      label: What happened
+    validations:
+      required: true
